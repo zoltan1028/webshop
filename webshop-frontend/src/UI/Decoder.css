@@ -1,0 +1,123 @@
+.td-red {
+    background-color: rgb(255, 181, 181);
+}
+
+.td-blue {
+    background-color: #b5e1ff;
+}
+
+.td-green {
+    background-color: rgb(150, 255, 183);
+}
+
+.td-yellow {
+    background-color: rgb(255, 255, 182);
+}
+
+.td-lightblue {
+    background-color: #edf8ff;
+}
+
+.card-color {
+    background-color: #ffffff;
+    border-color: #000000;
+}
+
+.card-color-custom-header {
+    background-color: #00e9a7;
+    border-color: #adadad;
+}
+
+.button-color-primary:hover:enabled {
+    color: #ffffff;
+    background-color: rgb(77, 210, 119);
+}
+
+.button-color-primary:enabled {
+    background-color: rgb(92, 255, 144);
+}
+
+.button-color-primary {
+    background-color: #76c8ff;
+}
+
+.button-color-primary_link:hover {
+    color: #ffffff;
+    background-color: #0099ff;
+}
+
+.button-color-primary_link {
+    background-color: #76c8ff;
+}
+
+
+.button-color-secondary:hover {
+    background-color: #e7e7e7
+}
+
+.button-color-secondary {
+    color: #ffffff;
+    background-color: #adadad;
+}
+
+.button-color-delete:hover:enabled {
+    background-color: #e90000;
+}
+
+.button-color-delete {
+    color: #ffffff;
+    background-color: rgb(255, 95, 95);
+}
+
+.button-color-delete:enabled {
+    background-color: #ff0000;
+}
+
+.tile-color {
+    color: #ffffff;
+    background-color: #e7e7e7;
+}
+
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s;
+}
+
+.fade-enter,
+.fade-leave-to
+
+/* .fade-leave-active in <2.1.8 */
+{
+    opacity: 0;
+}
+
+/* Base styles for all screen sizes */
+.container {
+    width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  /* Styles for small screens (mobile devices) */
+  @media (max-width: 599px) {
+    .container {
+      width: 100%;
+    }
+  }
+  
+  /* Styles for medium screens (tablets) */
+  @media (min-width: 600px) and (max-width: 1199px) {
+    .container {
+      width: 80%;
+    }
+  }
+  
+  /* Styles for large screens (desktops) */
+  @media (min-width: 1200px) {
+    .container {
+      width: 75%;
+    }
+  }
+  
