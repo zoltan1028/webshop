@@ -16,6 +16,12 @@ public class ShopUser {
     private Long id;
     private String username;
     private String password;
+    private String token;
+    private String admin;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ShopOrder> shopOrderList = new ArrayList<>();
+    public void addShopOrderToShopUser(ShopOrder order) {
+        this.shopOrderList.add(order);
+        order.setUser(this);
+    }
 }

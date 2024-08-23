@@ -4,9 +4,11 @@ import com.e_commerce.webshop.dto.OrderDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductQuantity;
 import com.e_commerce.webshop.model.ShopOrder;
+import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
+import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.PictureService;
 import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +33,16 @@ public class ProductController {
     IShopOrderRepository shopOrderRepository;
     @Autowired
     PictureService pictureService;
+    @Autowired
+    IUserRepository userRepository;
 
     @GetMapping("init")
     public void initH2() {
+        ShopUser user = new ShopUser();
+        user.setUsername("test");
+        user.setPassword("test");
+        user.setAdmin("admin");
+        userRepository.save(user);
         String[] names = {"alma", "korte", "banan", "cseresznye", "avokado", "mango"};
         String[] descriptions = {"a", "b", "c", "d", "e", "f"};
         int[] prices = {10,20,30,40,50,60};

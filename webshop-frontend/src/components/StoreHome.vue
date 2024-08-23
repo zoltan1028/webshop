@@ -13,11 +13,14 @@
                 <input v-model="password" type="password" id="password" class="form-control" required>
             </div>
             <div class="col-2">
-                <base-button class="button-color-delete">Login</base-button>
+                <base-button class="button-color-delete">{{ loginButtonText }}</base-button>
+            </div>
+            <div>
+                <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
             </div>
         </div>
     </form>
-    <base-button class="button-color-delete" mode="link" to="/manageproduct">Upload Stuff</base-button>
+    <base-button v-if="getTokenStatus.userRight === 'admin'" class="button-color-delete" mode="link" to="/manageproduct">Upload Stuff</base-button>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
         <store-item v-for="product in getProducts" :id="product.id" :name="product.name" :price="product.price"
             :weight="product.weight" :stock="product.stock" :description="product.description"
@@ -35,22 +38,35 @@
 <script>
 export default {
     created() {
-        this.loadProducts();
+        this.loadProducts();    
+        this.initUI();
     },
     data() {
         return {
             username: "",
             password: "",
-            error: null
+            error: null,
+            loginButtonText: "Login"
         }
     },
     computed: {
         getProducts() {
             console.log("call")
             return this.$store.getters['products/getProducts'];
+        },
+        getTokenStatus() {
+            return this.$store.getters['products/getToken'];
         }
     },
     methods: {
+        initUI() {
+            const auth = this.$store.getters['products/getToken'];
+            if (auth.token) {
+                this.loginButtonText = "Logout"
+            } else {
+                this.loginButtonText = "Login"
+            }
+        },
         resetError() {
             this.error = null;
         },
@@ -58,16 +74,29 @@ export default {
             await this.$store.dispatch('products/getProducts');
         },
         async submitLogin() {
-            console.log(this.username + this.password)
-            const loginForm = {
-                username: this.username,
-                password: this.password
+            const auth = this.$store.getters['products/getToken']
+            console.log(auth)
+            if (!auth.token) {
+                const loginForm = {
+                    username: this.username,
+                    password: this.password
+                }
+                try {
+                    await this.$store.dispatch('products/authLogin', loginForm)
+                    this.loginButtonText = "Logout";
+                } catch (error) {
+                    this.error = error.message;
+                }
+            } else {
+                console.log("logout")
+                this.loginButtonText = "Login";
+                try {
+                    await this.$store.dispatch('products/authLogout', auth.token)
+                } catch (e) {
+                    this.error = e
+                }
             }
-            try {
-                await this.$store.dispatch('products/authLogin', loginForm)
-            } catch (error) {
-                this.error = error.message;
-            }
+
             //console.log(submitEvent.target.elements.username.value)
         }
     }

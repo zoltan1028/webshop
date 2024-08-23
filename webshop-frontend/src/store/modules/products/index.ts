@@ -9,7 +9,10 @@ export default {
             products: null,
             cart: [],
             productForm: {},
-            token: ""
+            auth: {
+                token: null,
+                userRight: null
+            }
         }
     },
     actions,

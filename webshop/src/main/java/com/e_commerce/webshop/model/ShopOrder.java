@@ -26,6 +26,5 @@ public class ShopOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserorderId")
     private ShopUser user;
-
     private String status;
 }

@@ -48,7 +48,9 @@ export default {
 input[type="file"] {
   display: none;
 }
-
+label {
+  border-radius: 2rem;
+}
 button,
 a {
   text-align: center;

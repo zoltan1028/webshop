@@ -4,10 +4,13 @@ import com.e_commerce.webshop.dto.OrderDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductQuantity;
 import com.e_commerce.webshop.model.ShopOrder;
+import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
+import com.e_commerce.webshop.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,11 +28,23 @@ public class OrderController {
     IProductRepository productRepository;
     @Autowired
     IProductQuantityRepository productQuantityRepository;
+
+    @Autowired
+    IUserRepository userRepository;
     @PostMapping("submitOrder")
-    public void sendOrder(@RequestBody List<OrderDTO> orderData) {
+    public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData) {
+        Optional<ShopUser> user = userRepository.findById(1L);
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        ShopUser shopUser = user.get();
+
+
+
         ShopOrder newOrder = new ShopOrder();
         System.out.println(newOrder.getId());
         shopOrderRepository.save(newOrder);
+        newOrder.setUser(shopUser);
         for (var dtoItem : orderData) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             Product product = null;
@@ -47,5 +62,6 @@ public class OrderController {
             productQuantityRepository.save(quantity);
         }
         System.out.println(newOrder.getQuantityList().toString());
+        return ResponseEntity.ok("order sent");
     }
 }

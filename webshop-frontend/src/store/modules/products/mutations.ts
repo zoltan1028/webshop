@@ -9,8 +9,15 @@ export default {
     emptyCart(state: any) {
         state.cart = []
     },
-    setToken(state: any, token: string) {
-        state.token = token;
+    setToken(state: any, auth: string) {
+        state.auth = auth;
+        console.log("logtoken" + auth)
+    },
+    removeToken(state: any, token: string) {
+        state.auth = {
+            token: null,
+            userRight: null
+        };
         console.log("logtoken" + token)
     },
     async setProducts(state: any, payload: object) {
