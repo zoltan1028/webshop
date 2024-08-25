@@ -1,9 +1,9 @@
 package com.e_commerce.webshop.controller;
 
 import com.e_commerce.webshop.dto.UserDTO;
-import com.e_commerce.webshop.model.ShopOrder;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
+import com.e_commerce.webshop.service.AuthenticationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
@@ -22,6 +22,9 @@ import java.util.Optional;
 public class ShopUserController {
     @Autowired
     IUserRepository userRepository;
+    @Autowired
+    AuthenticationService authenticationService;
+
     @PostMapping("login")
     @Transactional
     public ResponseEntity<String> LoginUser(@RequestBody UserDTO dtoUser) {
@@ -30,14 +33,12 @@ public class ShopUserController {
             return ResponseEntity.badRequest().body("The provided username or password was not found.");
         }
         ShopUser shopUser = user.get();
-        if (!(shopUser.getPassword().equals(dtoUser.getPassword()))) {
+        if (!authenticationService.isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {
             return ResponseEntity.badRequest().body("The provided username or password was not found.");
         }
-        shopUser.setToken("tokenxyz");
-        //userRepository.save(shopUser);
+        shopUser.setToken(authenticationService.GenerateToken());
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
-        System.out.println("asdads"+shopUser.getToken() + shopUser.getAdmin());
         node.put("token", shopUser.getToken());
         node.put("userRight", shopUser.getAdmin());
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node.toString());
@@ -57,7 +58,7 @@ public class ShopUserController {
         if (shopUserOptional.isPresent()) {return ResponseEntity.badRequest().body("Username is already taken.");}
         ShopUser newShopUser = new ShopUser();
         newShopUser.setUsername(newUser.getUsername());
-        newShopUser.setPassword(newUser.getPassword());
+        newShopUser.setPassword(authenticationService.hashPassword(newUser.getPassword()));
         newShopUser.setAdmin("user");
         userRepository.save(newShopUser);
         return ResponseEntity.ok().build();

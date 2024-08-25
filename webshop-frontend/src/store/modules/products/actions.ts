@@ -71,8 +71,15 @@ export default {
       throw error;
     }
   },
-  async getProducts(ctx: any) {
-    const response = await fetch(baseUrl + productsController + "getProducts", {
+  async getProducts(ctx: any, param: string) {
+    const params = {
+      page: param,
+      size: '5'
+    }
+    const url = new URL(baseUrl + productsController + "getProducts");
+    url.search = new URLSearchParams(params).toString()
+
+    const response = await fetch(url, {
       method: "GET",
     });
     console.log(response);
@@ -83,7 +90,6 @@ export default {
       throw error;
     }
     const responseData = await response.json();
-    console.log(responseData);
     ctx.commit("setProducts", responseData);
   },
   async postProduct(ctx: any, payload: object) {

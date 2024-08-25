@@ -9,6 +9,7 @@ import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
 import com.e_commerce.webshop.repository.IUserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,15 +33,13 @@ public class OrderController {
     @Autowired
     IUserRepository userRepository;
     @PostMapping("submitOrder")
+    @Transactional
     public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData) {
         Optional<ShopUser> user = userRepository.findById(1L);
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         ShopUser shopUser = user.get();
-
-
-
         ShopOrder newOrder = new ShopOrder();
         System.out.println(newOrder.getId());
         shopOrderRepository.save(newOrder);

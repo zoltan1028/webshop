@@ -1,5 +1,6 @@
 package com.e_commerce.webshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class Product {
     private int stock;
     private String description;
     private String picture;
+    @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductQuantity> productQuantities;
 }
