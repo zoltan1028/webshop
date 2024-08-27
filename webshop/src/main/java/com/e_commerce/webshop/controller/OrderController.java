@@ -12,10 +12,7 @@ import com.e_commerce.webshop.repository.IUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +31,8 @@ public class OrderController {
     IUserRepository userRepository;
     @PostMapping("submitOrder")
     @Transactional
-    public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData) {
-        Optional<ShopUser> user = userRepository.findById(1L);
+    public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData, @RequestHeader String token) {
+        Optional<ShopUser> user = userRepository.findByToken(token);
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }

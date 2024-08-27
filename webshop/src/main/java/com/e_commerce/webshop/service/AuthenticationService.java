@@ -1,12 +1,18 @@
 package com.e_commerce.webshop.service;
 
+import com.e_commerce.webshop.model.ShopUser;
+import com.e_commerce.webshop.repository.IUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
 public class AuthenticationService {
+    @Autowired
+    IUserRepository userRepository;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final char[] CHARS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
@@ -16,6 +22,21 @@ public class AuthenticationService {
         for(int i = 0; i < 6; i++)
             sb.append(CHARS[RND.nextInt(CHARS.length)]);
         return sb.toString();
+    }
+    public String GenerateAdminToken() {
+        StringBuffer sb = new StringBuffer();
+        for(int i = 0; i < 7; i++)
+            sb.append(CHARS[RND.nextInt(CHARS.length)]);
+        return sb.toString();
+    }
+    public boolean isAdmin(String token) {
+        System.out.println(token.length() == 7);
+        return token.length() == 7;
+    }
+    public boolean isLoggedInWithToken(String token) {
+        Optional<ShopUser> shopUser = userRepository.findByToken(token);
+        System.out.println("loggedin"+shopUser.isPresent()+token);
+        return shopUser.isPresent();
     }
     public String hashPassword(String password) {
         String hashedPassword = passwordEncoder.encode(password);

@@ -58,13 +58,14 @@ export default {
     const responseData = await response.text();
     ctx.commit("removeToken", responseData);
   },
-  async submitOrder(ctx: any, payload: object) {
+  async submitOrder(ctx: any, payload: any) {
     const response = await fetch(baseUrl + ordersController + "submitOrder", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Token": payload.token
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload.cart),
     });
     if (!response.ok) {
       const error = new Error(response.statusText);
@@ -92,20 +93,37 @@ export default {
     const responseData = await response.json();
     ctx.commit("setProducts", responseData);
   },
-  async postProduct(ctx: any, payload: object) {
+  async postProduct(ctx: any, payload: any) {
     console.log("posting");
     console.log(payload);
-
     const response = await fetch(baseUrl + productsController + "newProduct", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "token": payload.token
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload.form),
     });
     if (!response.ok) {
       const error = new Error(response.statusText);
       throw error;
     }
+  },
+  async getTokenStatus(ctx: any, token: string) {
+    const response = await fetch(baseUrl + shopUserController + "getTokenStatus", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "token": token
+      },
+    });
+    if (!response.ok) {
+      const error = new Error(
+        response.statusText + "An error occurd while checking token status."
+      );
+      throw error;
+    }
+    const responseData = await response.text();
+    ctx.commit("setTokenValidity", responseData);
   },
 };

@@ -34,6 +34,11 @@ public class ProductController {
     IProductRepository productRepository;
     @Autowired
     PictureService pictureService;
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @Autowired
+    IUserRepository userRepository;
 
     @GetMapping("getProducts")
     public ResponseEntity<Page<Product>> getProductsByPage(@RequestParam(defaultValue = "0") int page,
@@ -60,12 +65,15 @@ public class ProductController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(productList);
     }
     @PostMapping("newProduct")
-    public void saveNewProductToDataBase(@RequestBody Product product) {
+    public ResponseEntity<String> saveNewProductToDataBase(@RequestBody Product product, @RequestHeader String token) {
+        if (!(authenticationService.isLoggedInWithToken(token) && authenticationService.isAdmin(token))) {
+            return ResponseEntity.badRequest().build();
+        }
         String base64String = product.getPicture();
         product.setPicture(null);
         productRepository.save(product);
         Optional<Product> managedProduct = productRepository.findById(product.getId());
         managedProduct.ifPresent(value -> pictureService.performFileOperations(value.getId(), base64String));
+        return ResponseEntity.ok("New product was registered.");
     }
-
 }

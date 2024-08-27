@@ -4,10 +4,18 @@
         <input v-model="price" class="form-control form-control-md" type="text" placeholder="price" required>
         <input v-model="weight" class="form-control form-control-md" type="text" placeholder="weight" required>
         <input v-model="stock" class="form-control form-control-md" type="text" placeholder="stock" required>
-        <input v-model="description" class="form-control form-control-md" type="text" placeholder="description" required>
-        <base-button mode="input" class="primary_link button-color-primary_link" accept=".png" @change="setPicture">pic</base-button>
+        <input v-model="description" class="form-control form-control-md" type="text" placeholder="description"
+            required>
+        <base-button mode="input" class="primary_link button-color-primary_link" accept=".png"
+            @change="setPicture">pic</base-button>
         <button>Register Product</button>
     </form>
+    <base-modal :show="error" title="An error occured">
+        <h5>{{ error }}</h5>
+        <template #actions>
+            <base-button @onClick="resetError" class="button-color-primary">Ok</base-button>
+        </template>
+    </base-modal>
 </template>
 <script>
 export default {
@@ -38,11 +46,12 @@ export default {
             weight: null,
             stock: null,
             description: null,
-            base64Image: null
+            base64Image: null,
+            error: null
         }
     },
     methods: {
-        submitForm() {
+        async submitForm() {
             const formData = {
                 name: this.name,
                 price: this.price,
@@ -52,7 +61,12 @@ export default {
                 picture: this.base64Image
             }
             console.log('post')
-            this.$store.dispatch('products/postProduct', formData);
+            try {
+                await this.$store.dispatch('products/postProduct', { "form": formData, "token": this.$store.getters['products/getToken'].token });
+            } catch (error) {
+                console.log("catch")
+                this.error = error;
+            }
         },
         setPicture(event) {
             const file = event.target.files[0];
@@ -65,6 +79,9 @@ export default {
             } catch {
                 console.log("error pic")
             }
+        },
+        resetError() {
+            this.error = null;
         }
     }
 }

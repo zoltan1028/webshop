@@ -1,5 +1,5 @@
 export default {
-    getToken(state: any) {
+    getAuth(state: any) {
         return state.auth;
     },
     getProductForm(state: any) {

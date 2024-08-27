@@ -10,11 +10,12 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -36,7 +37,11 @@ public class ShopUserController {
         if (!authenticationService.isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {
             return ResponseEntity.badRequest().body("The provided username or password was not found.");
         }
-        shopUser.setToken(authenticationService.GenerateToken());
+        if (shopUser.getAdmin().equals("admin")) {
+            shopUser.setToken(authenticationService.GenerateAdminToken());
+        } else {
+            shopUser.setToken(authenticationService.GenerateToken());
+        }
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("token", shopUser.getToken());
@@ -62,5 +67,30 @@ public class ShopUserController {
         newShopUser.setAdmin("user");
         userRepository.save(newShopUser);
         return ResponseEntity.ok().build();
+    }
+    @Scheduled(fixedDelay = 1000)
+    @Transactional
+    public void removeTokenFromUsers() {
+        //find all w token
+        List<ShopUser> shopUsers = userRepository.findAll();
+        for (ShopUser user: shopUsers) {
+            Duration duration;
+            if (user.getToken_expire() != null) {
+                duration = Duration.between(user.getToken_expire(), OffsetDateTime.now());
+                if (duration.getSeconds() > 0) {
+                    user.setToken(null);
+                    user.setToken_expire(null);
+                }
+            }
+        }
+    }
+    @GetMapping("getTokenStatus")
+    public ResponseEntity<String> getTokenStatus(@RequestHeader String token) {
+        Optional<ShopUser> userWithToken = userRepository.findByToken(token);
+        if(userWithToken.isEmpty()) {
+            return ResponseEntity.ok("tokenIsInvalid");
+        } else {
+            return ResponseEntity.ok("tokenIsValid");
+        }
     }
 }

@@ -22,7 +22,10 @@ export default {
     methods: {
         submitCart() {
             console.log("order sent")
-            this.$store.dispatch('products/submitOrder', this.$store.getters['products/getCartContent'])
+            this.$store.dispatch('products/submitOrder', {
+                "cart": this.$store.getters['products/getCartContent'], 
+                "token":this.$store.getters['products/getToken'].token
+            })
         },
         emptyCart() {
             this.$store.dispatch('products/emptyCart')

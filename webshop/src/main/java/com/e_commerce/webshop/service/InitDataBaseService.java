@@ -1,4 +1,4 @@
-package com.e_commerce.webshop.controller;
+package com.e_commerce.webshop.service;
 
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ShopUser;
@@ -7,26 +7,20 @@ import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.AuthenticationService;
 import com.e_commerce.webshop.service.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("api/init/")
-public class InitController {
+@Service
+public class InitDataBaseService {
     @Autowired
     PictureService pictureService;
     @Autowired
     IUserRepository userRepository;
-
     @Autowired
     AuthenticationService authenticationService;
     @Autowired
     IProductRepository productRepository;
-
-    @GetMapping("init")
     public void initH2() {
         ShopUser user = new ShopUser();
         user.setUsername("admin");
@@ -41,7 +35,6 @@ public class InitController {
         String[] descriptions = {"a", "b", "c", "d", "e", "f"};
         int[] prices = {10,20,30,40,50,60};
         int[] stock = {5, 25, 35,45,55,65};
-
         productRepository.deleteAll();
         for (int i = 0; i < 20; i++) {
             Product testProduct = new Product();

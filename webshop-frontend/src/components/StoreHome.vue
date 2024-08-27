@@ -13,7 +13,7 @@
                 <input v-model="password" type="password" id="password" class="form-control" required>
             </div>
             <div class="col-2">
-                <base-button class="button-color-delete">{{ loginButtonText }}</base-button>
+                <base-button class="button-color-delete">{{ initWithTokenStatus.token !== null ? 'Logout' : 'Login'}}</base-button>
             </div>
 
         </div>
@@ -21,7 +21,7 @@
     <div>
         <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
     </div>
-    <base-button v-if="getTokenStatus.userRight === 'admin'" class="button-color-delete" mode="link"
+    <base-button v-if="initWithTokenStatus.userRight === 'admin'" class="button-color-delete" mode="link"
         to="/manageproduct">Upload Stuff</base-button>
 
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>
@@ -37,11 +37,11 @@
             <ul class="pagination">
                 <li @click="updatePageNums('decrease')" class="page-item"><a class="page-link" href="#">Previous</a>
                 </li>
-                <li :id="pageX" @click="loadProducts(pageX)" class="page-item"><a class="page-link" href="#">{{ pageX
+                <li @click="loadProducts(page-1)" class="page-item"><a class="page-link" href="#">{{ page-1
                         }}</a></li>
-                <li :id="pageY" @click="loadProducts(pageY)" class="page-item"><a class="page-link" href="#">{{ pageY
+                <li @click="loadProducts(page)" class="page-item"><a class="page-link" href="#">{{ page
                         }}</a></li>
-                <li :id="pageZ" @click="loadProducts(pageZ)" class="page-item"><a class="page-link" href="#">{{ pageZ
+                <li @click="loadProducts(page+1)" class="page-item"><a class="page-link" href="#">{{ page+1
                         }}</a></li>
                 <li @click="updatePageNums('increase')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
@@ -61,17 +61,16 @@
 export default {
     created() {
         this.loadProducts();
-        this.initUI();
+        setInterval(() => {
+            this.$store.dispatch('products/getTokenStatus', this.$store.getters['products/getAuth'].token)
+        }, 1000);
     },
     data() {
         return {
             username: "",
             password: "",
             error: null,
-            loginButtonText: "Login",
-            pageX: 0,
-            pageY: 1,
-            pageZ: 2
+            page: 1,
         }
     },
     computed: {
@@ -79,32 +78,19 @@ export default {
             const products = this.$store.getters['products/getProducts'];
             return products ? products.content : products;
         },
-        getTokenStatus() {
-            return this.$store.getters['products/getToken'];
+        initWithTokenStatus() {
+            const auth = this.$store.getters['products/getAuth'];
+            return auth;
         }
     },
     methods: {
         updatePageNums(operation) {
             if (operation === 'increase') {
-                this.pageX += 1;
-                this.pageY += 1;
-                this.pageZ += 1;
-                this.loadProducts(this.pageZ);
-
+                this.page += 1;
+                this.loadProducts(this.page + 1);
             } else {
-                this.pageX -= 1;
-                this.pageY -= 1;
-                this.pageZ -= 1;
-                this.loadProducts(this.pageX);
-            }
-
-        },
-        initUI() {
-            const auth = this.$store.getters['products/getToken'];
-            if (auth.token) {
-                this.loginButtonText = "Logout"
-            } else {
-                this.loginButtonText = "Login"
+                this.page -= 1;
+                this.loadProducts(this.page - 1);
             }
         },
         resetError() {
@@ -114,7 +100,7 @@ export default {
             await this.$store.dispatch('products/getProducts', page);
         },
         async submitLogin() {
-            const auth = this.$store.getters['products/getToken']
+            const auth = this.$store.getters['products/getAuth']
             console.log(auth)
             if (!auth.token) {
                 const loginForm = {

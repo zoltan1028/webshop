@@ -11,7 +11,7 @@ export default {
             productForm: {},
             auth: {
                 token: null,
-                userRight: null
+                userRight: null,
             }
         }
     },
