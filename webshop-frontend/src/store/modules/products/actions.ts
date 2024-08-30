@@ -56,7 +56,10 @@ export default {
       throw error;
     }
     const responseData = await response.text();
-    ctx.commit("removeToken", responseData);
+    ctx.commit("removeToken");
+  },
+  removeToken(ctx: any) {
+    ctx.commit("removeToken")
   },
   async submitOrder(ctx: any, payload: any) {
     const response = await fetch(baseUrl + ordersController + "submitOrder", {

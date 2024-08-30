@@ -1,4 +1,7 @@
 export default {
+    getProductsIsEmpty(state: any) {
+        return state.isProductsEmpty;
+    },
     getAuth(state: any) {
         return state.auth;
     },

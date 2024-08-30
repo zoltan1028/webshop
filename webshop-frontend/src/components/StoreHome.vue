@@ -13,7 +13,8 @@
                 <input v-model="password" type="password" id="password" class="form-control" required>
             </div>
             <div class="col-2">
-                <base-button class="button-color-delete">{{ initWithTokenStatus.token !== null ? 'Logout' : 'Login'}}</base-button>
+                <base-button class="button-color-delete">{{ initWithTokenStatus.token !== null ? 'Logout' :
+        'Login' }}</base-button>
             </div>
 
         </div>
@@ -37,11 +38,11 @@
             <ul class="pagination">
                 <li @click="updatePageNums('decrease')" class="page-item"><a class="page-link" href="#">Previous</a>
                 </li>
-                <li @click="loadProducts(page-1)" class="page-item"><a class="page-link" href="#">{{ page-1
+                <li @click="loadProducts(page - 1)" class="page-item"><a class="page-link" href="#">{{ page - 1
                         }}</a></li>
                 <li @click="loadProducts(page)" class="page-item"><a class="page-link" href="#">{{ page
                         }}</a></li>
-                <li @click="loadProducts(page+1)" class="page-item"><a class="page-link" href="#">{{ page+1
+                <li @click="loadProducts(page + 1)" class="page-item"><a class="page-link" href="#">{{ page + 1
                         }}</a></li>
                 <li @click="updatePageNums('increase')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
@@ -60,10 +61,8 @@
 <script>
 export default {
     created() {
+        this.connectWebSocket();
         this.loadProducts();
-        setInterval(() => {
-            this.$store.dispatch('products/getTokenStatus', this.$store.getters['products/getAuth'].token)
-        }, 1000);
     },
     data() {
         return {
@@ -84,11 +83,39 @@ export default {
         }
     },
     methods: {
-        updatePageNums(operation) {
-            if (operation === 'increase') {
-                this.page += 1;
-                this.loadProducts(this.page + 1);
-            } else {
+        connectWebSocket() {
+            this.socket = new WebSocket('ws://localhost:8080/notify');
+            this.socket.onopen = () => {
+                this.isConnected = true;
+                console.log('WebSocket connection opened.');
+            };
+
+            this.socket.onmessage = (event) => {
+                this.lastNotification = event.data;
+                console.log('Received notification:', event.data);
+                this.$store.dispatch('products/removeToken');
+                console.log("tokenremoved:")
+                console.log(this.$store.getters['products/getAuth'].token)
+            };
+            this.socket.onclose = () => {
+                this.isConnected = false;
+                console.log('WebSocket connection closed.');
+                // Optionally, attempt to reconnect
+                setTimeout(this.connectWebSocket, 1000); // Try reconnecting after 5 seconds
+            };
+
+            this.socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        },
+        async updatePageNums(operation) {
+            if (operation === "increase") {
+                await this.loadProducts(this.page + 2);
+                if (!this.$store.getters['products/getProductsIsEmpty']) {
+                    this.page += 1;
+                }
+            }
+            else if (operation === 'decrease' && this.page > 1) {
                 this.page -= 1;
                 this.loadProducts(this.page - 1);
             }
@@ -103,19 +130,19 @@ export default {
             const auth = this.$store.getters['products/getAuth']
             console.log(auth)
             if (!auth.token) {
+                console.log("login")
+                console.log(auth.token)
                 const loginForm = {
                     username: this.username,
                     password: this.password
                 }
                 try {
                     await this.$store.dispatch('products/authLogin', loginForm)
-                    this.loginButtonText = "Logout";
                 } catch (error) {
                     this.error = error.message;
                 }
             } else {
                 console.log("logout")
-                this.loginButtonText = "Login";
                 try {
                     await this.$store.dispatch('products/authLogout', auth.token)
                 } catch (e) {

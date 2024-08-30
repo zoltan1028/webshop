@@ -68,22 +68,7 @@ public class ShopUserController {
         userRepository.save(newShopUser);
         return ResponseEntity.ok().build();
     }
-    @Scheduled(fixedDelay = 1000)
-    @Transactional
-    public void removeTokenFromUsers() {
-        //find all w token
-        List<ShopUser> shopUsers = userRepository.findAll();
-        for (ShopUser user: shopUsers) {
-            Duration duration;
-            if (user.getToken_expire() != null) {
-                duration = Duration.between(user.getToken_expire(), OffsetDateTime.now());
-                if (duration.getSeconds() > 0) {
-                    user.setToken(null);
-                    user.setToken_expire(null);
-                }
-            }
-        }
-    }
+
     @GetMapping("getTokenStatus")
     public ResponseEntity<String> getTokenStatus(@RequestHeader String token) {
         Optional<ShopUser> userWithToken = userRepository.findByToken(token);

@@ -7,6 +7,7 @@ export default {
     state() {
         return {
             products: null,
+            isProductsEmpty: false,
             cart: [],
             productForm: {},
             auth: {

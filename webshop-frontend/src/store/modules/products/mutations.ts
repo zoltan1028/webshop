@@ -9,22 +9,29 @@ export default {
   emptyCart(state: any) {
     state.cart = [];
   },
-  setToken(state: any, auth: string) {
+  setToken(state: any, auth: object) {
     state.auth = auth;
     console.log("logtoken" + auth);
+    console.log(auth);
   },
-  removeToken(state: any, token: string) {
+  removeToken(state: any) {
     state.auth.token = null;
     state.auth.userRight = null;
-    console.log("logtoken" + token);
+    
   },
   setTokenValidity(state: any, validity: string) {
     if (validity === "tokenIsInvalid") {
+      console.log("invalid")
       state.auth.token = null;
       state.auth.userRight = null;
     }
   },
-  async setProducts(state: any, payload: object) {
-    state.products = payload;
+  async setProducts(state: any, payload: any) {
+    if (payload.content.length === 0) {
+        state.isProductsEmpty = true;
+    } else {
+        state.isProductsEmpty = false;
+        state.products = payload;
+    }
   },
 };

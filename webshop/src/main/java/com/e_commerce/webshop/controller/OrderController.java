@@ -34,7 +34,7 @@ public class OrderController {
     public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData, @RequestHeader String token) {
         Optional<ShopUser> user = userRepository.findByToken(token);
         if (user.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Token was not found on submiting new order.");
         }
         ShopUser shopUser = user.get();
         ShopOrder newOrder = new ShopOrder();

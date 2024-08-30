@@ -59,7 +59,6 @@ public class PictureService {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
                     picture.append(line);
                 }
             } catch (IOException e) {
