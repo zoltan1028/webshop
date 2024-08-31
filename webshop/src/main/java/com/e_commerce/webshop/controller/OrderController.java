@@ -9,6 +9,10 @@ import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
 import com.e_commerce.webshop.repository.IUserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +35,16 @@ public class OrderController {
     IUserRepository userRepository;
     @PostMapping("submitOrder")
     @Transactional
-    public ResponseEntity<String> sendOrder(@RequestBody List<OrderDTO> orderData, @RequestHeader String token) {
+    public ResponseEntity<String> sendOrder(@RequestBody String data, @RequestHeader String token) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode orderData;
+        try {
+            orderData = objectMapper.readTree(data);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        List<OrderDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<OrderDTO>>(){});
+        System.out.println(orderData.get("google_tokenData"));
         Optional<ShopUser> user = userRepository.findByToken(token);
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().body("Token was not found on submiting new order.");
@@ -41,7 +54,7 @@ public class OrderController {
         System.out.println(newOrder.getId());
         shopOrderRepository.save(newOrder);
         newOrder.setUser(shopUser);
-        for (var dtoItem : orderData) {
+        for (var dtoItem : orderDataCart) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             Product product = null;
             if(optProduct.isPresent()) {

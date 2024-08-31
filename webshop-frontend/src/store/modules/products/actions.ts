@@ -62,13 +62,15 @@ export default {
     ctx.commit("removeToken")
   },
   async submitOrder(ctx: any, payload: any) {
+    console.log("payload:")
+    console.log(payload)
     const response = await fetch(baseUrl + ordersController + "submitOrder", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Token": payload.token
       },
-      body: JSON.stringify(payload.cart),
+      body: JSON.stringify(payload.data),
     });
     if (!response.ok) {
       const error = new Error(response.statusText);

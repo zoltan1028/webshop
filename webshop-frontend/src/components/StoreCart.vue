@@ -46,6 +46,7 @@ export default {
                     currencyCode: 'HUF',
                     countryCode: 'HU',
                 },
+                callbackIntents: ['PAYMENT_AUTHORIZATION'],
             }
         }
     },
@@ -59,11 +60,15 @@ export default {
         }
     },
     methods: {
-        submitCart() {
+        submitCart(event) {
             console.log("order sent")
+            console.log(event)
             this.$store.dispatch('products/submitOrder', {
-                "cart": this.$store.getters['products/getCartContent'],
-                "token": this.$store.getters['products/getAuth'].token
+                "data":{
+                    "cart": this.$store.getters['products/getCartContent'],
+                    "google_tokenData": event.detail
+                },
+                "token": this.$store.getters['products/getAuth'].token,
             })
         },
         emptyCart() {

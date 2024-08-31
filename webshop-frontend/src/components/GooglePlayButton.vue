@@ -19,9 +19,15 @@
     <div>
       <div class="example">
         <div class="demo">
-          <google-pay-button environment="TEST" button-type="plain" button-color="black"
-            :paymentRequest.prop="staticObjOfpaymentRequestProp" @loadpaymentdata="onLoadPaymentData"
-            @error="onError"></google-pay-button>
+          <google-pay-button 
+            environment="TEST" 
+            button-type="plain" 
+            button-color="black"
+            :paymentRequest.prop="staticObjOfpaymentRequestProp" 
+            @loadpaymentdata="onLoadPaymentData"
+            @error="onError"
+            :onPaymentAuthorized.prop="onPaymentDataAuthorized">
+          </google-pay-button>
         </div>
       </div>
     </div>
@@ -42,6 +48,12 @@ export default {
     onLoadPaymentData(event) {
       console.log('load payment data', event.detail);
       this.$emit('successful-payment', event);
+    },
+    onPaymentDataAuthorized: (paymentData) => {
+      console.log("payment authorized", paymentData);
+      return {
+        transactionState: "SUCCESS",
+      };
     },
     onError: event => {
       console.error('error', event.error);
