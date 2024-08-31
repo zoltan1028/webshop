@@ -25,7 +25,8 @@ export default {
             this.$store.dispatch('products/addProductToCart', {
                 'id': this.id,
                 'pieces': this.pieces,
-                'name': this.name
+                'name': this.name,
+                'price': this.price
             });
         }
     }

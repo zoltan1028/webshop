@@ -5,7 +5,7 @@
             :name="item.name" :pieces="item.pieces"></cart-item>
         <base-button v-if="false" class="button-color-primary" @onClick="submitCart">Send Order</base-button>
         <base-button class="button-color-delete" @onClick="emptyCart">Empty Cart</base-button>
-        <google-pay v-if="isUserLoggedIn"></google-pay>
+        <google-pay @successful-payment="submitCart" :paymentRequest="paymentRequestProp" v-if="isUserLoggedIn"></google-pay>
     </div>
 </template>
 <script>
@@ -16,6 +16,37 @@ export default {
     data() {
         return {
             localCartContent: null,
+            paymentRequestProp: {
+                apiVersion: 2,
+                apiVersionMinor: 0,
+                allowedPaymentMethods: [
+                    {
+                        type: 'CARD',
+                        parameters: {
+                            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+                        },
+                        tokenizationSpecification: {
+                            type: 'PAYMENT_GATEWAY',
+                            parameters: {
+                                gateway: 'example',
+                                gatewayMerchantId: 'exampleGatewayMerchantId',
+                            },
+                        },
+                    },
+                ],
+                merchantInfo: {
+                    merchantId: '12345678901234567890',
+                    merchantName: 'Demo Merchant',
+                },
+                transactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPriceLabel: 'Total',
+                    totalPrice: '100',
+                    currencyCode: 'HUF',
+                    countryCode: 'HU',
+                },
+            }
         }
     },
     computed: {
@@ -40,6 +71,7 @@ export default {
         },
         qtyChanged(data) {
             let cartContent = this.$store.getters['products/getCartContent']
+            let total = 0;
             console.log(cartContent)
             cartContent.forEach(product => {
                 if ((product.id === data[0]) && (data[1] === '+')) {
@@ -47,7 +79,10 @@ export default {
                 } else if ((product.id === data[0]) && (product.pieces > 1)) {
                     product.pieces--;
                 }
+                total += Number(product.pieces) * Number(product.price);
             });
+            this.paymentRequestProp.transactionInfo.totalPrice = String(total);
+            console.log(this.paymentRequestProp.transactionInfo.totalPrice)
         }
     }
 }
