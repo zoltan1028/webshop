@@ -6,10 +6,6 @@ export default {
     namespaced: true,
     state() {
         return {
-            products: null,
-            isProductsEmpty: false,
-            cart: [],
-            productForm: {},
         }
     },
     actions,

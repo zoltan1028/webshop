@@ -37,7 +37,7 @@ export default {
             }
             try {
                 console.log("reg")
-                await this.$store.dispatch('products/register', newRegister)
+                await this.$store.dispatch('authentication/register', newRegister)
                 this.registrationMessage = "Registration was successful."
             } catch (error) {
                 console.log(error)

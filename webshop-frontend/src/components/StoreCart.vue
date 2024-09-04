@@ -5,7 +5,8 @@
             :name="item.name" :pieces="item.pieces"></cart-item>
         <base-button v-if="false" class="button-color-primary" @onClick="submitCart">Send Order</base-button>
         <base-button class="button-color-delete" @onClick="emptyCart">Empty Cart</base-button>
-        <google-pay @successful-payment="submitCart" :paymentRequest="paymentRequestProp" v-if="isUserLoggedIn"></google-pay>
+        <google-pay @payment-failed="onPaymentFailed" @successful-payment="submitCart"
+            :paymentRequest="paymentRequestProp" v-if="isUserLoggedIn"></google-pay>
     </div>
 </template>
 <script>
@@ -52,24 +53,42 @@ export default {
     },
     computed: {
         isUserLoggedIn() {
-            const auth = this.$store.getters['products/getAuth'];
+            const auth = this.$store.getters['authentication/getAuth'];
             return auth ? auth.token : auth;
         },
         getCartContent() {
             return this.$store.getters['products/getCartContent']
         }
     },
+    created() {
+        let cartContent = this.$store.getters['products/getCartContent']
+        let total = 0;
+        cartContent.forEach(product => {
+            total += Number(product.price);
+        });
+        this.paymentRequestProp.transactionInfo.totalPrice = String(total);
+    },
     methods: {
-        submitCart(event) {
+        async submitCart(event) {
             console.log("order sent")
             console.log(event)
-            this.$store.dispatch('products/submitOrder', {
-                "data":{
-                    "cart": this.$store.getters['products/getCartContent'],
-                    "google_tokenData": event.detail
-                },
-                "token": this.$store.getters['products/getAuth'].token,
-            })
+            try {
+                await this.$store.dispatch('products/submitOrder', {
+                    "data": {
+                        "cart": this.$store.getters['products/getCartContent'],
+                        "google_tokenData": event.detail
+                    },
+                    "token": this.$store.getters['authentication/getAuth'].token,
+                })
+            } catch (e) {
+                console.log("except")
+                console.log(e)
+            }
+
+            this.$router.push('/storecart/ordercomplete')
+        },
+        onPaymentFailed(event) {
+            this.$router.push('/storehome')
         },
         emptyCart() {
             this.$store.dispatch('products/emptyCart')
@@ -77,17 +96,20 @@ export default {
         qtyChanged(data) {
             let cartContent = this.$store.getters['products/getCartContent']
             let total = 0;
-            console.log(cartContent)
             cartContent.forEach(product => {
                 if ((product.id === data[0]) && (data[1] === '+')) {
+                    //changing value of state variable
                     product.pieces++;
                 } else if ((product.id === data[0]) && (product.pieces > 1)) {
                     product.pieces--;
+                } else if ((product.id === data[0]) && (product.pieces <= 1)) {
+                    let filtered = cartContent.filter(item => item.id !== product.id)
+                    //saving filtered cart to state variable
+                    this.$store.dispatch('products/saveCart', filtered);
                 }
                 total += Number(product.pieces) * Number(product.price);
             });
             this.paymentRequestProp.transactionInfo.totalPrice = String(total);
-            console.log(this.paymentRequestProp.transactionInfo.totalPrice)
         }
     }
 }

@@ -78,7 +78,7 @@ export default {
             return products ? products.content : products;
         },
         initWithTokenStatus() {
-            const auth = this.$store.getters['products/getAuth'];
+            const auth = this.$store.getters['authentication/getAuth'];
             return auth;
         }
     },
@@ -93,9 +93,9 @@ export default {
             this.socket.onmessage = (event) => {
                 this.lastNotification = event.data;
                 console.log('Received notification:', event.data);
-                this.$store.dispatch('products/removeToken');
+                this.$store.dispatch('authentication/removeToken');
                 console.log("tokenremoved:")
-                console.log(this.$store.getters['products/getAuth'].token)
+                console.log(this.$store.getters['authentication/getAuth'].token)
             };
             this.socket.onclose = () => {
                 this.isConnected = false;
@@ -127,7 +127,7 @@ export default {
             await this.$store.dispatch('products/getProducts', page);
         },
         async submitLogin() {
-            const auth = this.$store.getters['products/getAuth']
+            const auth = this.$store.getters['authentication/getAuth']
             console.log(auth)
             if (!auth.token) {
                 console.log("login")
@@ -137,14 +137,14 @@ export default {
                     password: this.password
                 }
                 try {
-                    await this.$store.dispatch('products/authLogin', loginForm)
+                    await this.$store.dispatch('authentication/authLogin', loginForm)
                 } catch (error) {
                     this.error = error.message;
                 }
             } else {
                 console.log("logout")
                 try {
-                    await this.$store.dispatch('products/authLogout', auth.token)
+                    await this.$store.dispatch('authentication/authLogout', auth.token)
                 } catch (e) {
                     this.error = e
                 }

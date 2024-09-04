@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 
 @Component
 public class PictureService {
@@ -15,17 +19,30 @@ public class PictureService {
     private String externalDirPath;
 
     public void performFileOperations(Long id, String base64String) {
-        // Create a File object for the external directory
-        File externalDir = new File(externalDirPath);
-        if (!externalDir.exists()) {
-            if (externalDir.mkdirs()) {
+        Path externalDir = Paths.get(externalDirPath);
+        System.out.println("extdirpath"+Files.exists(externalDir));
+        if (Files.exists(externalDir)) {
+            try {
+                Files.walk(externalDir)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+                System.out.println("Directory and its contents deleted: " + externalDirPath);
+            } catch (IOException e) {
+                System.err.println("Failed to delete directory: " + externalDirPath);
+                throw new RuntimeException(e);
+            }
+        }
+        if (!externalDir.toFile().exists()) {
+            if (externalDir.toFile().mkdirs()) {
                 System.out.println("Directory created: " + externalDirPath);
             } else {
                 System.err.println("Failed to create directory: " + externalDirPath);
             }
         }
         // Example: Check if the directory exists
-        if (externalDir.exists() && externalDir.isDirectory()) {
+        if (externalDir.toFile().exists() && externalDir.toFile().isDirectory()) {
+
             System.out.println("External directory exists: " + externalDirPath);
         } else {
             System.out.println("External directory does not exist: " + externalDirPath);
@@ -38,7 +55,7 @@ public class PictureService {
             throw new RuntimeException(e);
         }
         // Example: List all files in the directory
-        File[] files = externalDir.listFiles();
+        File[] files = externalDir.toFile().listFiles();
         if (files != null) {
             for (File file : files) {
                 System.out.println("Found file: " + file.getName());

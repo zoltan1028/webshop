@@ -9,6 +9,7 @@ import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
 import com.e_commerce.webshop.repository.IUserRepository;
+import com.e_commerce.webshop.service.PayPalGatewayService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,17 +26,19 @@ import java.util.Optional;
 @RequestMapping("api/orders/")
 public class OrderController {
     @Autowired
+    IUserRepository userRepository;
+    @Autowired
     IShopOrderRepository shopOrderRepository;
     @Autowired
     IProductRepository productRepository;
     @Autowired
     IProductQuantityRepository productQuantityRepository;
-
     @Autowired
-    IUserRepository userRepository;
+    PayPalGatewayService payPalGatewayService;
+
     @PostMapping("submitOrder")
     @Transactional
-    public ResponseEntity<String> sendOrder(@RequestBody String data, @RequestHeader String token) {
+    public ResponseEntity<String> sendOrder(@RequestBody String data, @RequestHeader String authToken) {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode orderData;
         try {
@@ -44,14 +47,16 @@ public class OrderController {
             throw new RuntimeException(e);
         }
         List<OrderDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<OrderDTO>>(){});
-        System.out.println(orderData.get("google_tokenData"));
-        Optional<ShopUser> user = userRepository.findByToken(token);
+        Optional<ShopUser> user = userRepository.findByToken(authToken);
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().body("Token was not found on submiting new order.");
         }
+        String googleTokenData = orderData.get("google_tokenData").toString();
+        if(!payPalGatewayService.isPaymentSuccessful(googleTokenData)) {
+            return ResponseEntity.badRequest().body("Payment failed.");
+        }
         ShopUser shopUser = user.get();
         ShopOrder newOrder = new ShopOrder();
-        System.out.println(newOrder.getId());
         shopOrderRepository.save(newOrder);
         newOrder.setUser(shopUser);
         for (var dtoItem : orderDataCart) {
@@ -67,10 +72,8 @@ public class OrderController {
             quantity.setQuantity(dtoItem.getPieces());
             //add product to order
             newOrder.addProductQuantityToOrder(quantity);
-            System.out.println(newOrder.getId());
             productQuantityRepository.save(quantity);
         }
-        System.out.println(newOrder.getQuantityList().toString());
-        return ResponseEntity.ok("order sent");
+        return ResponseEntity.ok("Transaction was successful.");
     }
 }

@@ -57,6 +57,7 @@ export default {
     },
     onError: event => {
       console.error('error', event.error);
+      this.$emit('payment-failed', event);
     },
   },
 };

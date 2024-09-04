@@ -9,4 +9,6 @@ public class OrderDTO {
     private Long id;
     private String name;
     private int pieces;
+    //shouldn't be here
+    private int price;
 }
