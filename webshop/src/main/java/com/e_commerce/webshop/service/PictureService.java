@@ -18,9 +18,8 @@ public class PictureService {
     @Value("${external.directory.path}")
     private String externalDirPath;
 
-    public void performFileOperations(Long id, String base64String) {
+    public void deleteAllFilesFromPicturesDirectory() {
         Path externalDir = Paths.get(externalDirPath);
-        System.out.println("extdirpath"+Files.exists(externalDir));
         if (Files.exists(externalDir)) {
             try {
                 Files.walk(externalDir)
@@ -33,6 +32,9 @@ public class PictureService {
                 throw new RuntimeException(e);
             }
         }
+    }
+    public void performFileOperations(Long id, String base64String) {
+        Path externalDir = Paths.get(externalDirPath);
         if (!externalDir.toFile().exists()) {
             if (externalDir.toFile().mkdirs()) {
                 System.out.println("Directory created: " + externalDirPath);

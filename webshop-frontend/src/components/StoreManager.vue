@@ -62,7 +62,7 @@ export default {
             }
             console.log('post')
             try {
-                await this.$store.dispatch('products/postProduct', { "form": formData, "token": this.$store.getters['products/getAuth'].token });
+                await this.$store.dispatch('products/postProduct', { "form": formData, "token": this.$store.getters['authentication/getAuth'].token });
             } catch (error) {
                 console.log("catch")
                 this.error = error;
