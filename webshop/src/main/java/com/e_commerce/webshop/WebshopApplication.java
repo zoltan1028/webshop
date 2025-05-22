@@ -17,7 +17,6 @@ public class WebshopApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(WebshopApplication.class, args);
 		initDataBaseService.initH2();
-
 	}
 	@Autowired
 	public void setMyService(InitDataBaseService service) {

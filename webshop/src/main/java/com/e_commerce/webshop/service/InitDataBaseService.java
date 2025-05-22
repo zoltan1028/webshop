@@ -1,7 +1,9 @@
 package com.e_commerce.webshop.service;
 
 import com.e_commerce.webshop.model.Product;
+import com.e_commerce.webshop.model.ProductCategory;
 import com.e_commerce.webshop.model.ShopUser;
+import com.e_commerce.webshop.repository.ICategoryRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.AuthenticationService;
@@ -21,7 +23,17 @@ public class InitDataBaseService {
     AuthenticationService authenticationService;
     @Autowired
     IProductRepository productRepository;
+    @Autowired
+    ICategoryRepository categoryRepository;
+
     public void initH2() {
+        ProductCategory fruit = new ProductCategory();
+        ProductCategory vegetables = new ProductCategory();
+        fruit.setCategory("fruit");
+        vegetables.setCategory("vegetables");
+        categoryRepository.save(fruit);
+        categoryRepository.save(vegetables);
+
         ShopUser user = new ShopUser();
         user.setUsername("admin");
         user.setPassword(authenticationService.hashPassword("admin"));
@@ -42,6 +54,7 @@ public class InitDataBaseService {
             testProduct.setDescription(String.valueOf(i));
             testProduct.setPrice(i);
             testProduct.setStock(i);
+            fruit.addProductToCategory(testProduct);
             productRepository.save(testProduct);
         }
         List<Product> productList = productRepository.findAll();

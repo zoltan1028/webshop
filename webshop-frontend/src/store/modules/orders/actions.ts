@@ -1,8 +1,6 @@
 const ordersController = "http://localhost:8081/api/orders/";
 export default {
     async submitOrder(ctx: any, payload: any) {
-        console.log("payload:")
-        console.log(payload)
         const response = await fetch(ordersController + "submitOrder", {
           method: "POST",
           headers: {

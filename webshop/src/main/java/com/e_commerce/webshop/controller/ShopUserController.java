@@ -10,12 +10,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -37,11 +33,17 @@ public class ShopUserController {
         if (!authenticationService.isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {
             return ResponseEntity.badRequest().body("The provided username or password was not found.");
         }
+
+
+        if (shopUser.getToken() != null) { return ResponseEntity.badRequest().body("User is already logged in.");
+        }
+
         if (shopUser.getAdmin().equals("admin")) {
             shopUser.setToken(authenticationService.GenerateAdminToken());
         } else {
             shopUser.setToken(authenticationService.GenerateToken());
         }
+
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("token", shopUser.getToken());
@@ -67,15 +69,5 @@ public class ShopUserController {
         newShopUser.setAdmin("user");
         userRepository.save(newShopUser);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("getTokenStatus")
-    public ResponseEntity<String> getTokenStatus(@RequestHeader String token) {
-        Optional<ShopUser> userWithToken = userRepository.findByToken(token);
-        if(userWithToken.isEmpty()) {
-            return ResponseEntity.ok("tokenIsInvalid");
-        } else {
-            return ResponseEntity.ok("tokenIsValid");
-        }
     }
 }

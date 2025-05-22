@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.util.List;
 
+import jdk.jfr.Category;
 import lombok.Getter;
 import lombok.Setter;
 @Getter
@@ -22,4 +23,7 @@ public class Product {
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductQuantity> productQuantities;
+    @ManyToOne
+    @JoinColumn(name = "CategoryId")
+    private ProductCategory category;
 }
