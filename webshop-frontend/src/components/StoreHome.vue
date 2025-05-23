@@ -91,6 +91,7 @@ export default {
             };
 
             this.socket.onmessage = (event) => {
+                //on expired token message removes token -- auth check for UI login/out --
                 this.lastNotification = event.data;
                 console.log('Received notification:', event.data);
                 this.$store.dispatch('authentication/removeToken');

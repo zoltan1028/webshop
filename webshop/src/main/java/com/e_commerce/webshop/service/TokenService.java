@@ -18,6 +18,7 @@ public class TokenService {
     private WebSocketSession tcpWebsocketSession;
     @Autowired
     IUserRepository userRepository;
+    //removes token when expired and notifies frontend
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void removeTokenFromUsers() throws IOException {

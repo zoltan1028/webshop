@@ -21,13 +21,17 @@ export default {
     },
     methods: {
         addToCart() {
-            console.log("added to cart")
-            this.$store.dispatch('products/addProductToCart', {
+            const existingItem = this.$store.getters['products/getCartContent'].find(item => item.id === this.id);
+            if (existingItem) {
+                existingItem.pieces += this.pieces;
+            } else {
+                this.$store.dispatch('products/addProductToCart', {
                 'id': this.id,
                 'pieces': this.pieces,
                 'name': this.name,
                 'price': this.price
-            });
+                });
+            }
         }
     }
 }

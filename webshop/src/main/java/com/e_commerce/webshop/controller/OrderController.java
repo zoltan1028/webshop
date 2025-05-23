@@ -1,6 +1,6 @@
 package com.e_commerce.webshop.controller;
 
-import com.e_commerce.webshop.dto.OrderDTO;
+import com.e_commerce.webshop.dto.ProductDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductQuantity;
 import com.e_commerce.webshop.model.ShopOrder;
@@ -38,39 +38,32 @@ public class OrderController {
 
     @PostMapping("submitOrder")
     @Transactional
-    public ResponseEntity<String> sendOrder(@RequestBody String data, @RequestHeader String authToken) {
+    public ResponseEntity<String> sendOrder(@RequestBody String orderListWithGoogleTokenData, @RequestHeader String Token) {
+        System.out.println(orderListWithGoogleTokenData);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode orderData;
-        try {
-            orderData = objectMapper.readTree(data);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        List<OrderDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<OrderDTO>>(){});
-        Optional<ShopUser> user = userRepository.findByToken(authToken);
-        if (user.isEmpty()) {
-            return ResponseEntity.badRequest().body("Token was not found on submiting new order.");
-        }
+        try {orderData = objectMapper.readTree(orderListWithGoogleTokenData);} catch (JsonProcessingException e) {throw new RuntimeException(e);}
+        List<ProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<ProductDTO>>(){});
+
+        Optional<ShopUser> user = userRepository.findByToken(Token);
+        if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
         String googleTokenData = orderData.get("google_tokenData").toString();
-        if(!payPalGatewayService.isPaymentSuccessful(googleTokenData)) {
-            return ResponseEntity.badRequest().body("Payment failed.");
-        }
+        if(!payPalGatewayService.isPaymentSuccessful(googleTokenData)) {return ResponseEntity.badRequest().body("Payment failed.");}
+
         ShopUser shopUser = user.get();
         ShopOrder newOrder = new ShopOrder();
         shopOrderRepository.save(newOrder);
         newOrder.setUser(shopUser);
-        for (var dtoItem : orderDataCart) {
+        for (ProductDTO dtoItem : orderDataCart) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             Product product = null;
             if(optProduct.isPresent()) {
                 product = optProduct.get();
             }
             ProductQuantity quantity = new ProductQuantity();
-            //for pq set prod, order, qty, sum
             quantity.setProduct(product);
             quantity.setShoporder(newOrder);
             quantity.setQuantity(dtoItem.getPieces());
-            //add product to order
             newOrder.addProductQuantityToOrder(quantity);
             productQuantityRepository.save(quantity);
         }

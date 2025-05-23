@@ -64,16 +64,16 @@ export default {
         let cartContent = this.$store.getters['products/getCartContent']
         let total = 0;
         cartContent.forEach(product => {
-            total += Number(product.price);
+            total += Number(product.price) * Number(product.pieces);
         });
         this.paymentRequestProp.transactionInfo.totalPrice = String(total);
     },
     methods: {
         async submitCart(event) {
-            console.log("order sent")
-            console.log(event)
+            this.$store.getters['products/getCartContent'].forEach(item => {delete item.price})
+
             try {
-                await this.$store.dispatch('products/submitOrder', {
+                await this.$store.dispatch('orders/submitOrder', {
                     "data": {
                         "cart": this.$store.getters['products/getCartContent'],
                         "google_tokenData": event.detail
@@ -81,10 +81,8 @@ export default {
                     "token": this.$store.getters['authentication/getAuth'].token,
                 })
             } catch (e) {
-                console.log("except")
                 console.log(e)
             }
-
             this.$router.push('/storecart/ordercomplete')
         },
         onPaymentFailed(event) {
