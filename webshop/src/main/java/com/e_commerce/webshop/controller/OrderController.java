@@ -1,6 +1,7 @@
 package com.e_commerce.webshop.controller;
 
-import com.e_commerce.webshop.dto.ProductDTO;
+import com.e_commerce.webshop.dto.OrderProductDTO;
+import com.e_commerce.webshop.dto.ordersbyuser.OrdersByUserUserDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductQuantity;
 import com.e_commerce.webshop.model.ShopOrder;
@@ -35,7 +36,15 @@ public class OrderController {
     IProductQuantityRepository productQuantityRepository;
     @Autowired
     PayPalGatewayService payPalGatewayService;
-
+    @GetMapping("getOrdersOfUser")
+    public ResponseEntity<OrdersByUserUserDTO> getOrdersOfUserByToken(@RequestHeader String Token) {
+        Optional<ShopUser> testUser = userRepository.findByUsername("admin");
+        if(testUser.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        OrdersByUserUserDTO userDTO = new OrdersByUserUserDTO(testUser.get());
+        return  ResponseEntity.ok(userDTO);
+    }
     @PostMapping("submitOrder")
     @Transactional
     public ResponseEntity<String> sendOrder(@RequestBody String orderListWithGoogleTokenData, @RequestHeader String Token) {
@@ -43,7 +52,7 @@ public class OrderController {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode orderData;
         try {orderData = objectMapper.readTree(orderListWithGoogleTokenData);} catch (JsonProcessingException e) {throw new RuntimeException(e);}
-        List<ProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<ProductDTO>>(){});
+        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<OrderProductDTO>>(){});
 
         Optional<ShopUser> user = userRepository.findByToken(Token);
         if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
@@ -54,7 +63,7 @@ public class OrderController {
         ShopOrder newOrder = new ShopOrder();
         shopOrderRepository.save(newOrder);
         newOrder.setUser(shopUser);
-        for (ProductDTO dtoItem : orderDataCart) {
+        for (OrderProductDTO dtoItem : orderDataCart) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             Product product = null;
             if(optProduct.isPresent()) {
@@ -68,5 +77,10 @@ public class OrderController {
             productQuantityRepository.save(quantity);
         }
         return ResponseEntity.ok("Transaction was successful.");
+    }
+    @GetMapping("getOrders")
+    public ResponseEntity<String> getOrderDetails() {
+
+        return ResponseEntity.ok().body("d");
     }
 }

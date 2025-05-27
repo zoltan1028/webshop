@@ -1,17 +1,16 @@
 package com.e_commerce.webshop.service;
 
-import com.e_commerce.webshop.model.Product;
-import com.e_commerce.webshop.model.ProductCategory;
-import com.e_commerce.webshop.model.ShopUser;
-import com.e_commerce.webshop.repository.ICategoryRepository;
-import com.e_commerce.webshop.repository.IProductRepository;
-import com.e_commerce.webshop.repository.IUserRepository;
-import com.e_commerce.webshop.service.AuthenticationService;
-import com.e_commerce.webshop.service.PictureService;
+import com.e_commerce.webshop.dto.OrderProductDTO;
+import com.e_commerce.webshop.model.*;
+import com.e_commerce.webshop.repository.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class InitDataBaseService {
@@ -25,6 +24,10 @@ public class InitDataBaseService {
     IProductRepository productRepository;
     @Autowired
     ICategoryRepository categoryRepository;
+    @Autowired
+    IShopOrderRepository shopOrderRepository;
+    @Autowired
+    IOrderQuantityRepository orderQuantityRepository;
 
     public void initH2() {
         ProductCategory fruit = new ProductCategory();
@@ -37,7 +40,7 @@ public class InitDataBaseService {
         ShopUser user = new ShopUser();
         user.setUsername("admin");
         user.setPassword(authenticationService.hashPassword("admin"));
-        user.setAdmin("admin");
+        user.setUserRight(ShopUser.UserRight.ADMIN);
         userRepository.save(user);
         String[] names = {
                 "alma", "korte", "banan", "cseresznye", "avokado",
@@ -63,5 +66,39 @@ public class InitDataBaseService {
         for (Product p: productList) {
             pictureService.performFileOperations(p.getId(), dummyPic);
         }
+        //test order
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String, Object>> rawList = List.of(
+                Map.of("id", 2, "pieces", 2),
+                Map.of("id", 3, "pieces", 3),
+                Map.of("id", 1, "pieces", 1)
+        );
+        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(rawList, new TypeReference<List<OrderProductDTO>>(){});
+
+        Optional<ShopUser> shopUser = userRepository.findByUsername("admin");
+        ShopOrder newOrder = new ShopOrder();
+        shopOrderRepository.save(newOrder);
+        if (shopUser.isPresent()) {
+            ShopUser testUser = shopUser.get();
+            newOrder.setUser(testUser);
+            //testUser.addShopOrderToShopUser(newOrder);
+        }
+        System.out.println(newOrder.getUser().getUsername());
+        shopOrderRepository.save(newOrder);
+
+        for (OrderProductDTO dtoItem : orderDataCart) {
+            Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
+            Product product = null;
+            if(optProduct.isPresent()) {
+                product = optProduct.get();
+            }
+            ProductQuantity quantity = new ProductQuantity();
+            quantity.setProduct(product);
+            quantity.setShoporder(newOrder);
+            quantity.setQuantity(dtoItem.getPieces());
+            newOrder.addProductQuantityToOrder(quantity);
+            orderQuantityRepository.save(quantity);
+        }
+
     }
 }

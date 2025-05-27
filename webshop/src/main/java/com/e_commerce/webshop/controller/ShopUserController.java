@@ -38,7 +38,7 @@ public class ShopUserController {
         if (shopUser.getToken() != null) { return ResponseEntity.badRequest().body("User is already logged in.");
         }
 
-        if (shopUser.getAdmin().equals("admin")) {
+        if (shopUser.getUserRight().equals(ShopUser.UserRight.ADMIN)) {
             shopUser.setToken(authenticationService.GenerateAdminToken());
         } else {
             shopUser.setToken(authenticationService.GenerateToken());
@@ -47,7 +47,7 @@ public class ShopUserController {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("token", shopUser.getToken());
-        node.put("userRight", shopUser.getAdmin());
+        node.put("userRight", shopUser.getUserRight().toString());
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node.toString());
     }
     @PostMapping("logout")
@@ -66,7 +66,7 @@ public class ShopUserController {
         ShopUser newShopUser = new ShopUser();
         newShopUser.setUsername(newUser.getUsername());
         newShopUser.setPassword(authenticationService.hashPassword(newUser.getPassword()));
-        newShopUser.setAdmin("user");
+        newShopUser.setUserRight(ShopUser.UserRight.USER);
         userRepository.save(newShopUser);
         return ResponseEntity.ok().build();
     }

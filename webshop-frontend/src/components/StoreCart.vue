@@ -70,7 +70,10 @@ export default {
     },
     methods: {
         async submitCart(event) {
-            this.$store.getters['products/getCartContent'].forEach(item => {delete item.price})
+            this.$store.getters['products/getCartContent'].forEach(item => {
+                delete item.price
+                delete item.name
+            })
 
             try {
                 await this.$store.dispatch('orders/submitOrder', {

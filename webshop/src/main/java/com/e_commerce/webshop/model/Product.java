@@ -20,7 +20,6 @@ public class Product {
     private int stock;
     private String description;
     private String picture;
-    @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductQuantity> productQuantities;
     @ManyToOne

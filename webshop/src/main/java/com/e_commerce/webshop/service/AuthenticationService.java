@@ -30,12 +30,10 @@ public class AuthenticationService {
         return sb.toString();
     }
     public boolean isAdmin(String token) {
-        System.out.println(token.length() == 7);
         return token.length() == 7;
     }
     public boolean isLoggedInWithToken(String token) {
         Optional<ShopUser> shopUser = userRepository.findByToken(token);
-        System.out.println("loggedin"+shopUser.isPresent()+token);
         return shopUser.isPresent();
     }
     public String hashPassword(String password) {

@@ -1,5 +1,6 @@
 package com.e_commerce.webshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,7 @@ public class ShopOrder {
     private Long id;
     @OneToMany(mappedBy = "shoporder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductQuantity> quantityList = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UserorderId")
     private ShopUser user;
     private String status;

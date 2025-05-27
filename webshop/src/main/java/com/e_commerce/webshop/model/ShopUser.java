@@ -1,8 +1,10 @@
 package com.e_commerce.webshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.h2.engine.User;
 
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
@@ -19,16 +21,18 @@ public class ShopUser {
     private String username;
     private String password;
     private String token;
-    private String admin;
+    @Enumerated(EnumType.STRING)
+    private UserRight userRight;
     private OffsetDateTime token_expire;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ShopOrder> shopOrderList = new ArrayList<>();
+    public enum UserRight {
+        ADMIN,
+        USER;
+    }
     public void addShopOrderToShopUser(ShopOrder order) {
         this.shopOrderList.add(order);
         order.setUser(this);
-    }
-    public void setToken_expire() {
-        //"2017-12-03T10:15:30+01:00" +1 created min
     }
     public void setToken(String token) {
         this.token = token;

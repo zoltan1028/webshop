@@ -1,5 +1,6 @@
 package com.e_commerce.webshop.controller;
 
+import com.e_commerce.webshop.dto.MainPageProductDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.service.AuthenticationService;
@@ -25,11 +26,14 @@ public class ProductController {
     @Autowired
     AuthenticationService authenticationService;
     @GetMapping("getProducts")
-    public ResponseEntity<Page<Product>> getProductsByPage(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<MainPageProductDTO>> getProductsByPage(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
+
+
         Page<Product> pageResult = productRepository.findAll(pageable);
-        pageResult.getContent().forEach(product ->
+        Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
+        dtoPageResult.getContent().forEach(product ->
                 product.setPicture(pictureService.getProductPictureById(product.getId()))
         );
         try {
@@ -37,7 +41,7 @@ public class ProductController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return ResponseEntity.ok(pageResult);
+        return ResponseEntity.ok(dtoPageResult);
     }
     @PostMapping("newProduct")
     public ResponseEntity<String> saveNewProductToDataBase(@RequestBody Product product, @RequestHeader String token) {

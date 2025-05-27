@@ -16,7 +16,6 @@ public class ProductCategory {
     @Id
     private Long id;
     private String category;
-    @JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Product> productList = new ArrayList<>();
     public void addProductToCategory(Product product) {
