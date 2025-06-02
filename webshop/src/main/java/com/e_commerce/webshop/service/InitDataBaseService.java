@@ -27,8 +27,7 @@ public class InitDataBaseService {
     @Autowired
     IShopOrderRepository shopOrderRepository;
     @Autowired
-    IOrderQuantityRepository orderQuantityRepository;
-
+    IProductQuantityRepository productQuantityRepository;
     public void initH2() {
         ProductCategory fruit = new ProductCategory();
         ProductCategory vegetables = new ProductCategory();
@@ -73,7 +72,7 @@ public class InitDataBaseService {
                 Map.of("id", 3, "pieces", 3),
                 Map.of("id", 1, "pieces", 1)
         );
-        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(rawList, new TypeReference<List<OrderProductDTO>>(){});
+        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(rawList, new TypeReference<>(){});
 
         Optional<ShopUser> shopUser = userRepository.findByUsername("admin");
         ShopOrder newOrder = new ShopOrder();
@@ -97,7 +96,7 @@ public class InitDataBaseService {
             quantity.setShoporder(newOrder);
             quantity.setQuantity(dtoItem.getPieces());
             newOrder.addProductQuantityToOrder(quantity);
-            orderQuantityRepository.save(quantity);
+            productQuantityRepository.save(quantity);
         }
 
     }

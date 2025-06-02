@@ -8,7 +8,4 @@ export default {
     getProducts(state: any) {
         return state.products;
     },
-    getCartContent(state: any) {
-        return state.cart;
-    }
 };

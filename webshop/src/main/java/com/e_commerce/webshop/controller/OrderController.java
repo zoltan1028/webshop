@@ -52,7 +52,7 @@ public class OrderController {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode orderData;
         try {orderData = objectMapper.readTree(orderListWithGoogleTokenData);} catch (JsonProcessingException e) {throw new RuntimeException(e);}
-        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<List<OrderProductDTO>>(){});
+        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<>(){});
 
         Optional<ShopUser> user = userRepository.findByToken(Token);
         if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}

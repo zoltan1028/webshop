@@ -8,7 +8,6 @@ export default {
         return {
             products: null,
             isProductsEmpty: false,
-            cart: [],
             productForm: {},
         }
     },

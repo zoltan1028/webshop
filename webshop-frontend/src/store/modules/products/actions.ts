@@ -3,15 +3,6 @@ export default {
   saveProductForm(ctx: any, payload: object) {
     ctx.commit("saveProductForm", payload);
   },
-  addProductToCart(ctx: any, payload: object) {
-    ctx.commit("addProductToCart", payload);
-  },
-  emptyCart(ctx: any) {
-    ctx.commit("emptyCart");
-  },
-  saveCart(ctx: any, payload: object) {
-    ctx.commit("saveCart", payload);
-  },
   async getProducts(ctx: any, param: string) {
     const params = {
       page: param,
@@ -23,7 +14,6 @@ export default {
     const response = await fetch(url, {
       method: "GET",
     });
-    console.log(response);
     if (!response.ok) {
       const error = new Error(
         response.statusText + "An error occurd fetching prods"
@@ -34,8 +24,6 @@ export default {
     ctx.commit("setProducts", responseData);
   },
   async postProduct(ctx: any, payload: any) {
-    console.log("posting");
-    console.log(payload);
     const response = await fetch(productsController + "newProduct", {
       method: "POST",
       headers: {

@@ -15,4 +15,13 @@ export default {
           throw error;
         }
       },
+  addProductToCart(ctx: any, payload: object) {
+    ctx.commit("addProductToCart", payload);
+  },
+  emptyCart(ctx: any) {
+    ctx.commit("emptyCart");
+  },
+  saveCart(ctx: any, payload: object) {
+    ctx.commit("saveCart", payload);
+  },
 }

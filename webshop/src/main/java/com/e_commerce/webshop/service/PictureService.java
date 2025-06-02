@@ -1,17 +1,13 @@
 package com.e_commerce.webshop.service;
-
-import com.e_commerce.webshop.controller.ProductController;
-import com.e_commerce.webshop.model.Product;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-@Component
+@Service
 public class PictureService {
 
     // Inject the Windows directory path from application.properties

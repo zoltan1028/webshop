@@ -21,11 +21,11 @@ export default {
     },
     methods: {
         addToCart() {
-            const existingItem = this.$store.getters['products/getCartContent'].find(item => item.id === this.id);
+            const existingItem = this.$store.getters['orders/getCartContent'].find(item => item.id === this.id);
             if (existingItem) {
                 existingItem.pieces += this.pieces;
             } else {
-                this.$store.dispatch('products/addProductToCart', {
+                this.$store.dispatch('orders/addProductToCart', {
                 'id': this.id,
                 'pieces': this.pieces,
                 'name': this.name,

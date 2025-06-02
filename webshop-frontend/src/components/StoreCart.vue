@@ -57,11 +57,11 @@ export default {
             return auth ? auth.token : auth;
         },
         getCartContent() {
-            return this.$store.getters['products/getCartContent']
+            return this.$store.getters['orders/getCartContent']
         }
     },
     created() {
-        let cartContent = this.$store.getters['products/getCartContent']
+        let cartContent = this.$store.getters['orders/getCartContent']
         let total = 0;
         cartContent.forEach(product => {
             total += Number(product.price) * Number(product.pieces);
@@ -70,7 +70,7 @@ export default {
     },
     methods: {
         async submitCart(event) {
-            this.$store.getters['products/getCartContent'].forEach(item => {
+            this.$store.getters['orders/getCartContent'].forEach(item => {
                 delete item.price
                 delete item.name
             })
@@ -78,7 +78,7 @@ export default {
             try {
                 await this.$store.dispatch('orders/submitOrder', {
                     "data": {
-                        "cart": this.$store.getters['products/getCartContent'],
+                        "cart": this.$store.getters['orders/getCartContent'],
                         "google_tokenData": event.detail
                     },
                     "token": this.$store.getters['authentication/getAuth'].token,
@@ -92,10 +92,10 @@ export default {
             this.$router.push('/storehome')
         },
         emptyCart() {
-            this.$store.dispatch('products/emptyCart')
+            this.$store.dispatch('orders/emptyCart')
         },
         qtyChanged(data) {
-            let cartContent = this.$store.getters['products/getCartContent']
+            let cartContent = this.$store.getters['orders/getCartContent']
             let total = 0;
             cartContent.forEach(product => {
                 if ((product.id === data[0]) && (data[1] === '+')) {
@@ -106,7 +106,7 @@ export default {
                 } else if ((product.id === data[0]) && (product.pieces <= 1)) {
                     let filtered = cartContent.filter(item => item.id !== product.id)
                     //saving filtered cart to state variable
-                    this.$store.dispatch('products/saveCart', filtered);
+                    this.$store.dispatch('orders/saveCart', filtered);
                 }
                 total += Number(product.pieces) * Number(product.price);
             });
