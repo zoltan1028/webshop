@@ -22,7 +22,7 @@
     <div>
         <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
     </div>
-    <base-button v-if="initWithTokenStatus.userRight === 'admin'" class="button-color-delete" mode="link"
+    <base-button v-if="initWithTokenStatus.userRight === 'ADMIN'" class="button-color-delete" mode="link"
         to="/manageproduct">Upload Stuff</base-button>
 
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>

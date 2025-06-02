@@ -1,6 +1,6 @@
 package com.e_commerce.webshop.controller;
 
-import com.e_commerce.webshop.dto.UserDTO;
+import com.e_commerce.webshop.dto.AuthUserDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.AuthenticationService;
@@ -24,7 +24,7 @@ public class ShopUserController {
 
     @PostMapping("login")
     @Transactional
-    public ResponseEntity<String> LoginUser(@RequestBody UserDTO dtoUser) {
+    public ResponseEntity<String> LoginUser(@RequestBody AuthUserDTO dtoUser) {
         Optional<ShopUser> user = userRepository.findByUsername(dtoUser.getUsername());
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().body("The provided username or password was not found.");
@@ -60,7 +60,8 @@ public class ShopUserController {
         return ResponseEntity.ok(null);
     }
     @PostMapping("register")
-    public ResponseEntity<String> Registration(@RequestBody UserDTO newUser) {
+    @Transactional
+    public ResponseEntity<String> Registration(@RequestBody AuthUserDTO newUser) {
         Optional<ShopUser> shopUserOptional = userRepository.findByUsername(newUser.getUsername());
         if (shopUserOptional.isPresent()) {return ResponseEntity.badRequest().body("Username is already taken.");}
         ShopUser newShopUser = new ShopUser();

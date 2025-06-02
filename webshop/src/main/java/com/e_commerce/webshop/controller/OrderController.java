@@ -65,10 +65,8 @@ public class OrderController {
         newOrder.setUser(shopUser);
         for (OrderProductDTO dtoItem : orderDataCart) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
-            Product product = null;
-            if(optProduct.isPresent()) {
-                product = optProduct.get();
-            }
+            if (optProduct.isEmpty()) {return ResponseEntity.badRequest().body("Product not found.");}
+            Product product = optProduct.get();
             ProductQuantity quantity = new ProductQuantity();
             quantity.setProduct(product);
             quantity.setShoporder(newOrder);
@@ -77,10 +75,5 @@ public class OrderController {
             productQuantityRepository.save(quantity);
         }
         return ResponseEntity.ok("Transaction was successful.");
-    }
-    @GetMapping("getOrders")
-    public ResponseEntity<String> getOrderDetails() {
-
-        return ResponseEntity.ok().body("d");
     }
 }

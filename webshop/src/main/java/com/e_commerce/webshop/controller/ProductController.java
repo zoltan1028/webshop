@@ -1,10 +1,12 @@
 package com.e_commerce.webshop.controller;
 
 import com.e_commerce.webshop.dto.MainPageProductDTO;
+import com.e_commerce.webshop.dto.NewProductDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.service.AuthenticationService;
 import com.e_commerce.webshop.service.PictureService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,8 +31,6 @@ public class ProductController {
     public ResponseEntity<Page<MainPageProductDTO>> getProductsByPage(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-
-
         Page<Product> pageResult = productRepository.findAll(pageable);
         Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
         dtoPageResult.getContent().forEach(product ->
@@ -44,18 +44,23 @@ public class ProductController {
         return ResponseEntity.ok(dtoPageResult);
     }
     @PostMapping("newProduct")
-    public ResponseEntity<String> saveNewProductToDataBase(@RequestBody Product product, @RequestHeader String token) {
+    @Transactional
+    public ResponseEntity<String> saveNewProductToDataBase(@RequestBody NewProductDTO productDTO, @RequestHeader String token) {
         if (!(authenticationService.isLoggedInWithToken(token) && authenticationService.isAdmin(token))) {
             return ResponseEntity.badRequest().build();
         }
-        String base64String = product.getPicture();
-        product.setPicture(null);
-        productRepository.save(product);
-        //managed product with generatedvalue Id
-        System.out.println(product.getId());
+        String base64String = productDTO.getPicture();
 
-        Optional<Product> managedProduct = productRepository.findById(product.getId());
-        managedProduct.ifPresent(value -> pictureService.performFileOperations(value.getId(), base64String));
+        Product newProduct = new Product();
+        newProduct.setName(productDTO.getName());
+        newProduct.setPrice(productDTO.getPrice());
+        newProduct.setStock(productDTO.getStock());
+        newProduct.setDescription(productDTO.getDescription());
+
+        productRepository.save(newProduct);
+        //save product pic with generated id
+        Optional<Product> managedProduct = productRepository.findById(newProduct.getId());
+        managedProduct.ifPresent(value -> pictureService.writePicturesToFile(value.getId(), base64String));
         return ResponseEntity.ok("New product was registered.");
     }
 }

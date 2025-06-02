@@ -33,7 +33,7 @@ public class PictureService {
             }
         }
     }
-    public void performFileOperations(Long id, String base64String) {
+    public void writePicturesToFile(Long id, String base64String) {
         Path externalDir = Paths.get(externalDirPath);
         if (!externalDir.toFile().exists()) {
             if (externalDir.toFile().mkdirs()) {

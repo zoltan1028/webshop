@@ -15,13 +15,11 @@ public class LogoutHandler extends TextWebSocketHandler {
         this.tokenService = tokenService;
         System.out.println("NotificationWebSocketHandler bean created");
     }
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         System.out.println("Connected to client: " + session.getId());
         tokenService.setWebSocketSession(session);  // Set the session in the service
     }
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         System.out.println("Session closed: " + session.getId());
