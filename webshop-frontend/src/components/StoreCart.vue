@@ -74,7 +74,6 @@ export default {
                 delete item.price
                 delete item.name
             })
-
             try {
                 await this.$store.dispatch('orders/submitOrder', {
                     "data": {
@@ -86,6 +85,7 @@ export default {
             } catch (e) {
                 console.log(e)
             }
+            this.$store.dispatch('orders/emptyCart')
             this.$router.push('/storecart/ordercomplete')
         },
         onPaymentFailed(event) {

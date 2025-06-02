@@ -1,6 +1,7 @@
 package com.e_commerce.webshop.controller;
 
 import com.e_commerce.webshop.dto.OrderProductDTO;
+import com.e_commerce.webshop.dto.PaymentRequestDTO;
 import com.e_commerce.webshop.dto.ordersbyuser.OrdersByUserUserDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductQuantity;
@@ -47,23 +48,16 @@ public class OrderController {
     }
     @PostMapping("submitOrder")
     @Transactional
-    public ResponseEntity<String> sendOrder(@RequestBody String orderListWithGoogleTokenData, @RequestHeader String Token) {
-        System.out.println(orderListWithGoogleTokenData);
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode orderData;
-        try {orderData = objectMapper.readTree(orderListWithGoogleTokenData);} catch (JsonProcessingException e) {throw new RuntimeException(e);}
-        List<OrderProductDTO> orderDataCart = objectMapper.convertValue(orderData.get("cart"), new TypeReference<>(){});
-
+    public ResponseEntity<String> sendOrder(@RequestBody PaymentRequestDTO paymentRequest, @RequestHeader String Token) {
         Optional<ShopUser> user = userRepository.findByToken(Token);
         if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
-        String googleTokenData = orderData.get("google_tokenData").toString();
-        if(!payPalGatewayService.isPaymentSuccessful(googleTokenData)) {return ResponseEntity.badRequest().body("Payment failed.");}
+        if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
 
         ShopUser shopUser = user.get();
         ShopOrder newOrder = new ShopOrder();
         shopOrderRepository.save(newOrder);
         newOrder.setUser(shopUser);
-        for (OrderProductDTO dtoItem : orderDataCart) {
+        for (OrderProductDTO dtoItem : paymentRequest.getCart()) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             if (optProduct.isEmpty()) {return ResponseEntity.badRequest().body("Product not found.");}
             Product product = optProduct.get();
