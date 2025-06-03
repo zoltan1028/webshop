@@ -30,6 +30,7 @@ export default {
     },
     beforeUnmount() {
         const form = {
+            id: 0,
             name: this.name,
             price: this.price,
             weight: this.weight,
@@ -41,18 +42,19 @@ export default {
     },
     data() {
         return {
-            name: null,
-            price: null,
-            weight: null,
-            stock: null,
-            description: null,
-            base64Image: null,
+            name: "",
+            price: 0,
+            weight: 0,
+            stock: 0,
+            description: "",
+            base64Image: "",
             error: null
         }
     },
     methods: {
         async submitForm() {
             const newProduct = {
+                id: 0,
                 name: this.name,
                 price: this.price,
                 weight: this.weight,

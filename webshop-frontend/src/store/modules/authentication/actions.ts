@@ -1,7 +1,8 @@
 const shopUserController = "http://localhost:8081/api/users/";
+import { AuthUserDTO } from './index'
 
 export default {
-  async authLogin(ctx: any, payload: object) {
+  async authLogin(ctx: any, payload: AuthUserDTO) {
     const response = await fetch(shopUserController + "login", {
       method: "POST",
       headers: {
@@ -18,13 +19,13 @@ export default {
     console.log(responseData)
     ctx.commit("setToken", responseData);
   },
-  async authLogout(ctx: any, payload: string) {
+  async authLogout(ctx: any, token: string) {
     const response = await fetch(shopUserController + "logout", {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",
       },
-      body: payload,
+      body: token,
     });
     if (!response.ok) {
       const error = new Error(response.statusText);
@@ -33,7 +34,7 @@ export default {
     const responseData = await response.text();
     ctx.commit("removeToken");
   },
-  async register(ctx: any, payload: object) {
+  async register(ctx: any, payload: AuthUserDTO) {
     const response = await fetch(shopUserController + "register", {
       method: "POST",
       headers: {

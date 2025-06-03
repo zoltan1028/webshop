@@ -1,6 +1,9 @@
 const productsController = "http://localhost:8081/api/products/";
+import { Product } from './index'
+import { ProductFormDTO } from './index'
+
 export default {
-  saveProductForm(ctx: any, payload: object) {
+  saveProductForm(ctx: any, payload: Product) {
     ctx.commit("saveProductForm", payload);
   },
   async getProducts(ctx: any, param: string) {
@@ -23,7 +26,7 @@ export default {
     const responseData = await response.json();
     ctx.commit("setProducts", responseData);
   },
-  async postProduct(ctx: any, payload: any) {
+  async postProduct(ctx: any, payload: ProductFormDTO) {
     const response = await fetch(productsController + "newProduct", {
       method: "POST",
       headers: {

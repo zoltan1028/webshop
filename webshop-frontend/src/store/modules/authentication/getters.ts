@@ -1,5 +1,7 @@
+import { UserRight } from './index'
+
 export default {
-    getAuth(state: any) {
+    getAuth(state: any): UserRight {
         return state.auth;
     },
 };

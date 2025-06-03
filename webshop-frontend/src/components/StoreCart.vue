@@ -16,7 +16,6 @@ export default {
     components: { CartItem, GooglePay },
     data() {
         return {
-            localCartContent: null,
             paymentRequestProp: {
                 apiVersion: 2,
                 apiVersionMinor: 0,

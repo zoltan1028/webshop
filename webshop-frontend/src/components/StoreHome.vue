@@ -1,5 +1,7 @@
 <template>
     <h2>Store</h2>
+    <div>Number of pages: {{ getNumberOfPages }}</div>
+    <div>Items found: {{ getProductsCount }}</div>
     <base-button mode="link" class="button-color-primary" to="/storecart">Cart</base-button>
 
     <form @submit.prevent="submitLogin">
@@ -75,7 +77,15 @@ export default {
     computed: {
         getProducts() {
             const products = this.$store.getters['products/getProducts'];
-            return products ? products.content : products;
+            return products ? products.content : null;
+        },
+        getProductsCount() {
+            const products = this.$store.getters['products/getProducts'];
+            return products ? products.totalElements : 0;
+        },
+        getNumberOfPages() {
+            const products = this.$store.getters['products/getProducts'];
+            return products ? products.totalPages : 0;
         },
         initWithTokenStatus() {
             const auth = this.$store.getters['authentication/getAuth'];
@@ -129,13 +139,11 @@ export default {
         },
         async submitLogin() {
             const auth = this.$store.getters['authentication/getAuth']
-            console.log(auth)
             if (!auth.token) {
-                console.log("login")
                 console.log(auth.token)
                 const loginForm = {
                     username: this.username,
-                    password: this.password
+                    password: this.password,
                 }
                 try {
                     await this.$store.dispatch('authentication/authLogin', loginForm)
@@ -143,7 +151,6 @@ export default {
                     this.error = error.message;
                 }
             } else {
-                console.log("logout")
                 try {
                     await this.$store.dispatch('authentication/authLogout', auth.token)
                 } catch (e) {

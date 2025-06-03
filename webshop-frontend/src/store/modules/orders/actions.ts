@@ -1,6 +1,11 @@
 const ordersController = "http://localhost:8081/api/orders/";
+import { CartItemDTO } from './index'
+import { OrderDTO } from './index'
+import { CartItem } from './index'
+
+
 export default {
-    async submitOrder(ctx: any, payload: any) {
+    async submitOrder(ctx: any, payload: OrderDTO) {
         const response = await fetch(ordersController + "submitOrder", {
           method: "POST",
           headers: {
@@ -15,13 +20,13 @@ export default {
           throw error;
         }
       },
-  addProductToCart(ctx: any, payload: object) {
+  addProductToCart(ctx: any, payload: CartItemDTO) {
     ctx.commit("addProductToCart", payload);
   },
   emptyCart(ctx: any) {
     ctx.commit("emptyCart");
   },
-  saveCart(ctx: any, payload: object) {
+  saveCart(ctx: any, payload: CartItem[]) {
     ctx.commit("saveCart", payload);
   },
 }
