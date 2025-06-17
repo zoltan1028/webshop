@@ -39,7 +39,7 @@ public class OrderController {
     PayPalGatewayService payPalGatewayService;
     @GetMapping("getOrdersOfUser")
     public ResponseEntity<OrdersByUserUserDTO> getOrdersOfUserByToken(@RequestHeader String Token) {
-        Optional<ShopUser> testUser = userRepository.findByUsername("admin");
+        Optional<ShopUser> testUser = userRepository.findByToken(Token);
         if(testUser.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -69,5 +69,14 @@ public class OrderController {
             productQuantityRepository.save(quantity);
         }
         return ResponseEntity.ok("Transaction was successful.");
+    }
+    @DeleteMapping("/deleteOrder/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteOrder(@RequestHeader String Token, @PathVariable Long id) {
+        System.out.println(Token);
+        Optional<ShopUser> shopUserOptional = userRepository.findByToken(Token);
+        if(shopUserOptional.isEmpty()) {return ResponseEntity.badRequest().build();}
+        shopOrderRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }

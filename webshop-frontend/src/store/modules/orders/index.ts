@@ -18,11 +18,16 @@ export interface OrderDTO {
         google_tokenData: object
     }
 }
+export interface OrderDeleteDTO {
+    token: string
+    orderId: number
+}
 export default {
     namespaced: true,
     state() {
         return {
-            cart: []
+            cart: [],
+            orders: {}
         }
     },
     actions,

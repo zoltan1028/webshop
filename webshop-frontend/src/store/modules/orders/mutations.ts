@@ -9,4 +9,7 @@ export default {
   saveCart(state: any, payload: CartItem[]) {
     state.cart = payload;
   },
+  setOrders(state: any, payload: any) {
+    state.orders = payload
+  }
 }

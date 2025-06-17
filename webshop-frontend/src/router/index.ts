@@ -5,6 +5,8 @@ import OrderComplete from '../components/OrderCompletePage.vue';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import StoreCart from '@/components/StoreCart.vue';
 import StoreRegistration from '@/components/StoreRegistration.vue';
+import OrderList from '@/components/OrderList.vue';
+import OrderDetails from '@/components/OrderDetails.vue';
 
 
 const router = createRouter({
@@ -15,7 +17,9 @@ const router = createRouter({
     {path: '/manageproduct', component: StoreManager},
     {path: '/storecart', component: StoreCart},
     {path: '/registration', component: StoreRegistration},
-    {path: '/storecart/ordercomplete', component: OrderComplete}
+    {path: '/storecart/ordercomplete', component: OrderComplete},
+    {path: '/orders', component: OrderList},
+    {path: '/orders/:id', name: 'OrderDetails', component: OrderDetails}
   ]
 })
 

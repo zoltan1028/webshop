@@ -7,9 +7,11 @@
 <script>
 export default {
     mounted() {
+        /*
         setTimeout(() => {
             this.$router.push({ path: '/' });
         }, 10000);
+        */
     },
     created() {
         console.log("created complete order shit")

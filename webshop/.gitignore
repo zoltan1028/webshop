@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Pictures Stored In Binary ###
+/src/main/java/pictures

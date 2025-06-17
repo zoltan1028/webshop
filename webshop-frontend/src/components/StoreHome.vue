@@ -15,7 +15,7 @@
                 <input v-model="password" type="password" id="password" class="form-control" required>
             </div>
             <div class="col-2">
-                <base-button class="button-color-delete">{{ initWithTokenStatus.token !== null ? 'Logout' :
+                <base-button class="button-color-delete">{{ getAuthentication.token !== null ? 'Logout' :
         'Login' }}</base-button>
             </div>
 
@@ -24,8 +24,10 @@
     <div>
         <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
     </div>
-    <base-button v-if="initWithTokenStatus.userRight === 'ADMIN'" class="button-color-delete" mode="link"
+    <base-button v-if="getAuthentication.userRight === 'ADMIN'" class="button-color-delete" mode="link"
         to="/manageproduct">Upload Stuff</base-button>
+    <base-button v-if="getAuthentication.token !== null" class="button-color-delete" mode="link"
+        to="/orders">Orders</base-button>
 
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>
     </div>
@@ -61,7 +63,9 @@
 
 </template>
 <script>
+import StoreItem from './StoreItem.vue'
 export default {
+    components: { StoreItem },
     created() {
         this.connectWebSocket();
         this.loadProducts();
@@ -87,7 +91,7 @@ export default {
             const products = this.$store.getters['products/getProducts'];
             return products ? products.totalPages : 0;
         },
-        initWithTokenStatus() {
+        getAuthentication() {
             const auth = this.$store.getters['authentication/getAuth'];
             return auth;
         }
@@ -105,6 +109,7 @@ export default {
                 this.lastNotification = event.data;
                 console.log('Received notification:', event.data);
                 this.$store.dispatch('authentication/removeToken');
+                this.$router.push('/')
                 console.log("tokenremoved:")
                 console.log(this.$store.getters['authentication/getAuth'].token)
             };
@@ -157,8 +162,6 @@ export default {
                     this.error = e
                 }
             }
-
-            //console.log(submitEvent.target.elements.username.value)
         }
     }
 }

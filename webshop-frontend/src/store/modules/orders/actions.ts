@@ -1,25 +1,52 @@
 const ordersController = "http://localhost:8081/api/orders/";
-import { CartItemDTO } from './index'
-import { OrderDTO } from './index'
-import { CartItem } from './index'
-
+import { CartItemDTO } from "./index";
+import { OrderDTO } from "./index";
+import { CartItem } from "./index";
+import { OrderDeleteDTO } from "./index";
 
 export default {
-    async submitOrder(ctx: any, payload: OrderDTO) {
-        const response = await fetch(ordersController + "submitOrder", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Token": payload.token
-          },
-          body: JSON.stringify(payload.data),
-        });
-        if (!response.ok) {
-          const error = new Error(response.statusText);
-          console.log(error)
-          throw error;
-        }
+  async submitOrder(ctx: any, payload: OrderDTO) {
+    const response = await fetch(ordersController + "submitOrder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Token: payload.token,
       },
+      body: JSON.stringify(payload.data),
+    });
+    if (!response.ok) {
+      const error = new Error(response.statusText);
+      throw error;
+    }
+  },
+  async deleteOrder(ctx: any, payload: OrderDeleteDTO) {
+    console.log(payload)
+    const response = await fetch(ordersController + "deleteOrder/" + payload.orderId, {
+      method: "DELETE",
+      headers: {
+        Token: payload.token,
+      },
+    });
+    if (!response.ok) {
+      const error = new Error(response.statusText);
+      throw error;
+    }
+  },
+  async getOrders(ctx: any, token: string) {
+    const response = await fetch(ordersController + "getOrdersOfUser", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+    });
+    if (!response.ok) {
+      const error = new Error(response.statusText);
+      throw error;
+    }
+    const responseData = await response.json();
+    ctx.commit("setOrders", responseData);
+  },
   addProductToCart(ctx: any, payload: CartItemDTO) {
     ctx.commit("addProductToCart", payload);
   },
@@ -29,4 +56,4 @@ export default {
   saveCart(ctx: any, payload: CartItem[]) {
     ctx.commit("saveCart", payload);
   },
-}
+};

@@ -1,10 +1,32 @@
 <template>
   <nav>
-    <router-link to="/">Home</router-link> |
+    <router-link to="/">Home</router-link>
+    <base-button v-if="!isHomePage" @click="previousPage" class="button-color-primary">Back</base-button>
   </nav>
-  <router-view/>
+  <router-view />
 </template>
-
+<script>
+export default {
+  props: ['quantityList'],
+  computed: {
+    isHomePage() {
+      const currentPath = this.$route.path
+      let isHomePage = true
+      if (currentPath === "/storehome") {
+        isHomePage = true
+      } else {
+        isHomePage = false
+      }
+      return isHomePage
+    }
+  },
+  methods: {
+    previousPage() {
+      this.$router.back()
+    }
+  }
+}
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
