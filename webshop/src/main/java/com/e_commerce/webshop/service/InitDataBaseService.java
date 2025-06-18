@@ -35,8 +35,8 @@ public class InitDataBaseService {
     public void initH2() {
         ProductCategory fruit = new ProductCategory();
         ProductCategory vegetables = new ProductCategory();
-        fruit.setCategory("fruit");
-        vegetables.setCategory("vegetables");
+        fruit.setCategory(ProductCategory.ShopProductCategory.FRUIT);
+        vegetables.setCategory(ProductCategory.ShopProductCategory.VEGETABLE);
         categoryRepository.save(fruit);
         categoryRepository.save(vegetables);
 

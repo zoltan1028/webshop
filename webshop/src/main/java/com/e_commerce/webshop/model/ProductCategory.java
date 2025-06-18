@@ -12,10 +12,15 @@ import java.util.List;
 @Setter
 @Entity
 public class ProductCategory {
+    public enum ShopProductCategory {
+        FRUIT,
+        VEGETABLE;
+    }
     @GeneratedValue
     @Id
     private Long id;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private ShopProductCategory category;
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Product> productList = new ArrayList<>();
     public void addProductToCategory(Product product) {

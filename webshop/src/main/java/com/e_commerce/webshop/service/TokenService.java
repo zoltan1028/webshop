@@ -22,7 +22,6 @@ public class TokenService {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void removeTokenFromUsers() throws IOException {
-        //find all w token
         List<ShopUser> shopUsers = userRepository.findAll();
         for (ShopUser user: shopUsers) {
             Duration duration;

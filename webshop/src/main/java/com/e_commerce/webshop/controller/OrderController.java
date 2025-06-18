@@ -1,5 +1,4 @@
 package com.e_commerce.webshop.controller;
-
 import com.e_commerce.webshop.dto.OrderProductDTO;
 import com.e_commerce.webshop.dto.PaymentRequestDTO;
 import com.e_commerce.webshop.dto.ordersbyuser.OrdersByUserUserDTO;
@@ -14,12 +13,16 @@ import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.PayPalGatewayService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/orders/")
@@ -36,21 +39,16 @@ public class OrderController {
     PayPalGatewayService payPalGatewayService;
     @GetMapping("getOrdersOfUser")
     public ResponseEntity<OrdersByUserUserDTO> getOrdersOfUserByToken(@RequestHeader String Token) {
-        Optional<ShopUser> testUser = userRepository.findByToken(Token);
-        if(testUser.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        OrdersByUserUserDTO userDTO = new OrdersByUserUserDTO(testUser.get());
+        ShopUser user = userRepository.findByToken(Token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token not found."));
+        OrdersByUserUserDTO userDTO = new OrdersByUserUserDTO(user);
         return  ResponseEntity.ok(userDTO);
     }
     @PostMapping("submitOrder")
     @Transactional
     public ResponseEntity<String> sendOrder(@RequestBody PaymentRequestDTO paymentRequest, @RequestHeader String Token) {
-        Optional<ShopUser> user = userRepository.findByToken(Token);
-        if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
+        ShopUser shopUser = userRepository.findByToken(Token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token was on submitting new order."));
         if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
 
-        ShopUser shopUser = user.get();
         ShopOrder newOrder = new ShopOrder(shopUser);
         shopOrderRepository.save(newOrder);
         for (OrderProductDTO dtoItem : paymentRequest.getCart()) {
@@ -66,30 +64,27 @@ public class OrderController {
     @PutMapping("modifyOrder")
     @Transactional
     public ResponseEntity<?> modifyOrder(@RequestBody PaymentRequestDTO paymentRequest, @RequestHeader String Token) {
-        Optional<ShopUser> user = userRepository.findByToken(Token);
-        if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
-        if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
         Long idOfSelectedOrder = paymentRequest.getIdOfSelectedOrder();
+        userRepository.findByToken(Token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token was not found on submiting new order."));
+        if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
+        ShopOrder orderToModify = shopOrderRepository.findById(idOfSelectedOrder).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Shop order not found."));
 
-        List<ProductQuantity> productQuantities = productQuantityRepository.findByShoporderId(idOfSelectedOrder);
+        List<ProductQuantity> productQuantities = orderToModify.getQuantityList();
+        //Function.identity() maps value for Map
+        Map<Long, ProductQuantity> pqs = productQuantities.stream()
+                .collect(Collectors.toMap(
+                        pq -> pq.getProduct().getId(),
+                        Function.identity()));
 
-        Optional<ShopOrder> orderToModify = shopOrderRepository.findById(idOfSelectedOrder);
-        if(orderToModify.isEmpty()) {return ResponseEntity.badRequest().body("Order was not found.");}
-        //paymentRequest.getCart()
-        for (OrderProductDTO dtoItem : paymentRequest.getCart()) {
-            boolean isProductFound = false;
-            for (ProductQuantity pq: productQuantities) {
-                if (Objects.equals(pq.getProduct().getId(), dtoItem.getId())) {
-                    pq.modifyOrderByQuantityChange(dtoItem.getPieces());
-                    isProductFound = true;
-                }
-            }
-            if (!isProductFound) {
-                Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
-                if (optProduct.isEmpty()) {return ResponseEntity.badRequest().body("Product not found.");}
-                Product product = optProduct.get();
-                ProductQuantity quantity = new ProductQuantity(orderToModify.get(), product, dtoItem.getPieces());
-                orderToModify.get().addProductQuantityToOrder(quantity);
+        for (OrderProductDTO shoppingCartDTO : paymentRequest.getCart()) {
+            Long pid = shoppingCartDTO.getId();
+            if (pqs.containsKey(pid)) {
+                ProductQuantity pq = pqs.get(pid);
+                pq.modifyOrderByQuantityChange(shoppingCartDTO.getPieces());
+            } else {
+                Product product = productRepository.findById(shoppingCartDTO.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found"));
+                ProductQuantity quantity = new ProductQuantity(orderToModify, product, shoppingCartDTO.getPieces());
+                orderToModify.addProductQuantityToOrder(quantity);
                 productQuantityRepository.save(quantity);
             }
         }
@@ -98,8 +93,7 @@ public class OrderController {
     @DeleteMapping("/deleteOrder/{id}")
     @Transactional
     public ResponseEntity<Void> deleteOrder(@RequestHeader String Token, @PathVariable Long id) {
-        Optional<ShopUser> shopUserOptional = userRepository.findByToken(Token);
-        if(shopUserOptional.isEmpty()) {return ResponseEntity.badRequest().build();}
+        userRepository.findByToken(Token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token not found."));
         shopOrderRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }

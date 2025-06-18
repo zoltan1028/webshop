@@ -33,14 +33,9 @@ public class ProductQuantity {
     private ShopOrder shoporder;
     public void modifyOrderByQuantityChange(int qtyFromDto) {
         BigDecimal productPrice   = this.getProduct().getPrice();
-        BigDecimal qtyOfProduct     = BigDecimal.valueOf(qtyFromDto);
-        //new prodqty
-        this.quantity = quantity + qtyFromDto;
-        BigDecimal qty     = BigDecimal.valueOf(quantity);
-        //new sum
-        this.sum = productPrice.multiply(qty).setScale(2, BigDecimal.ROUND_HALF_UP);
-
-        var x = productPrice.multiply(BigDecimal.valueOf(qtyFromDto));
-        this.shoporder.setOrderTotal(this.shoporder.getOrderTotal().add(x));
+        BigDecimal plusAmountToTotal = productPrice.multiply(BigDecimal.valueOf(qtyFromDto));
+        this.shoporder.setOrderTotal(shoporder.getOrderTotal().add(plusAmountToTotal));
+        this.quantity += qtyFromDto;
+        this.sum = productPrice.multiply(BigDecimal.valueOf(quantity)).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

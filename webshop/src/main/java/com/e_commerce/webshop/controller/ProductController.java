@@ -28,16 +28,13 @@ public class ProductController {
     @Autowired
     AuthenticationService authenticationService;
     @GetMapping("getProducts")
-    public ResponseEntity<Page<MainPageProductDTO>> getProductsByPage(@RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<MainPageProductDTO>> getProductsByPage(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> pageResult = productRepository.findAll(pageable);
         Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
-        dtoPageResult.getContent().forEach(product ->
-                product.setPicture(pictureService.getProductPictureById(product.getId()))
-        );
+        dtoPageResult.getContent().forEach(product -> product.setPicture(pictureService.getProductPictureById(product.getId())));
         try {
-            Thread.sleep(3000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -46,17 +43,14 @@ public class ProductController {
     @PostMapping("newProduct")
     @Transactional
     public ResponseEntity<String> saveNewProductToDataBase(@RequestBody NewProductDTO productDTO, @RequestHeader String token) {
-        if (!(authenticationService.isLoggedInWithToken(token) && authenticationService.isAdmin(token))) {
-            return ResponseEntity.badRequest().build();
-        }
-        String base64String = productDTO.getPicture();
+        if (!(authenticationService.isLoggedInWithToken(token) && authenticationService.isAdmin(token))) {return ResponseEntity.badRequest().build();}
 
+        String base64String = productDTO.getPicture();
         Product newProduct = new Product();
         newProduct.setName(productDTO.getName());
         newProduct.setPrice(productDTO.getPrice());
         newProduct.setStock(productDTO.getStock());
         newProduct.setDescription(productDTO.getDescription());
-
         productRepository.save(newProduct);
         //save product pic with generated id
         Optional<Product> managedProduct = productRepository.findById(newProduct.getId());

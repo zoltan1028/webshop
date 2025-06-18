@@ -8,9 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -25,25 +27,14 @@ public class ShopUserController {
     @PostMapping("login")
     @Transactional
     public ResponseEntity<String> LoginUser(@RequestBody AuthUserDTO dtoUser) {
-        Optional<ShopUser> user = userRepository.findByUsername(dtoUser.getUsername());
-        if (user.isEmpty()) {
-            return ResponseEntity.badRequest().body("The provided username or password was not found.");
-        }
-        ShopUser shopUser = user.get();
-        if (!authenticationService.isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {
-            return ResponseEntity.badRequest().body("The provided username or password was not found.");
-        }
-
-
-        if (shopUser.getToken() != null) { return ResponseEntity.badRequest().body("User is already logged in.");
-        }
-
+        ShopUser shopUser = userRepository.findByUsername(dtoUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "The provided username or password was not found."));
+        if (!authenticationService.isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {return ResponseEntity.badRequest().body("The provided username or password was not found.");}
+        if (shopUser.getToken() != null) { return ResponseEntity.badRequest().body("User is already logged in.");}
         if (shopUser.getUserRight().equals(ShopUser.UserRight.ADMIN)) {
             shopUser.setToken(authenticationService.GenerateAdminToken());
         } else {
             shopUser.setToken(authenticationService.GenerateToken());
         }
-
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("token", shopUser.getToken());
@@ -53,17 +44,15 @@ public class ShopUserController {
     @PostMapping("logout")
     @Transactional
     public ResponseEntity<String> Logout(@RequestBody String token) {
-        Optional<ShopUser> user = userRepository.findByToken(token);
-        if (user.isEmpty()) {return ResponseEntity.badRequest().body("");}
-        ShopUser shopUser = user.get();
+        ShopUser shopUser = userRepository.findByToken(token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token not found."));
         shopUser.setToken(null);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok().build();
     }
     @PostMapping("register")
     @Transactional
     public ResponseEntity<String> Registration(@RequestBody AuthUserDTO newUser) {
-        Optional<ShopUser> shopUserOptional = userRepository.findByUsername(newUser.getUsername());
-        if (shopUserOptional.isPresent()) {return ResponseEntity.badRequest().body("Username is already taken.");}
+        userRepository.findByUsername(newUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken."));
+
         ShopUser newShopUser = new ShopUser();
         newShopUser.setUsername(newUser.getUsername());
         newShopUser.setPassword(authenticationService.hashPassword(newUser.getPassword()));
