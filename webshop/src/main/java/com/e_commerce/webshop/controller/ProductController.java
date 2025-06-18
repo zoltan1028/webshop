@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +33,13 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> pageResult = productRepository.findAll(pageable);
         Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
-        dtoPageResult.getContent().forEach(product -> product.setPicture(pictureService.getProductPictureById(product.getId())));
+        dtoPageResult.getContent().forEach(product -> {
+            try {
+                product.setPicture(pictureService.getProductPictureById(product.getId()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
