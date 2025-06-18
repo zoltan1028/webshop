@@ -1,21 +1,23 @@
 <template>
-    <form @submit.prevent="submitForm">
-        <input v-model="name" class="form-control form-control-md" type="text" placeholder="name" required>
-        <input v-model="price" class="form-control form-control-md" type="text" placeholder="price" required>
-        <input v-model="weight" class="form-control form-control-md" type="text" placeholder="weight" required>
-        <input v-model="stock" class="form-control form-control-md" type="text" placeholder="stock" required>
-        <input v-model="description" class="form-control form-control-md" type="text" placeholder="description"
-            required>
-        <base-button mode="input" class="primary_link button-color-primary_link" accept=".png"
-            @change="setPicture">pic</base-button>
-        <button>Register Product</button>
-    </form>
-    <base-modal :show="error" title="An error occured">
-        <h5>{{ error }}</h5>
-        <template #actions>
-            <base-button @onClick="resetError" class="button-color-primary">Ok</base-button>
-        </template>
-    </base-modal>
+    <base-card>
+        <form @submit.prevent="submitForm">
+            <input v-model="name" class="form-control form-control-md" type="text" placeholder="name" required>
+            <input v-model="price" class="form-control form-control-md" type="text" placeholder="price" required>
+            <input v-model="weight" class="form-control form-control-md" type="text" placeholder="weight" required>
+            <input v-model="stock" class="form-control form-control-md" type="text" placeholder="stock" required>
+            <input v-model="description" class="form-control form-control-md" type="text" placeholder="description"
+                required>
+            <base-button mode="input" class="primary_link button-color-primary_link" accept=".png"
+                @change="setPicture">pic</base-button>
+            <button>Register Product</button>
+        </form>
+        <base-modal :show="error" title="An error occured">
+            <h5>{{ error }}</h5>
+            <template #actions>
+                <base-button @onClick="resetError" class="button-color-primary">Ok</base-button>
+            </template>
+        </base-modal>
+    </base-card>
 </template>
 <script>
 export default {
@@ -76,8 +78,8 @@ export default {
                 reader.onload = () => {
                     this.base64Image = reader.result.split(',')[1];
                 };
-            } catch {
-                console.log("error pic")
+            } catch (e) {
+                this.error = e;
             }
         },
         resetError() {

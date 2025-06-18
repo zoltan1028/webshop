@@ -4,11 +4,13 @@ import com.e_commerce.webshop.model.ProductQuantity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 public class OrdersByUserProductQuantityDTO {
     private Long id;
-    private int sum;
+    private BigDecimal sum;
     private int quantity;
     private OrdersByUserProductDTO product;
     public OrdersByUserProductQuantityDTO(ProductQuantity productQuantity) {

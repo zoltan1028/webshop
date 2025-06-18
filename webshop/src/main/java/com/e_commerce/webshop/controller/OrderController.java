@@ -12,16 +12,13 @@ import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
 import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.PayPalGatewayService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -54,26 +51,53 @@ public class OrderController {
         if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
 
         ShopUser shopUser = user.get();
-        ShopOrder newOrder = new ShopOrder();
+        ShopOrder newOrder = new ShopOrder(shopUser);
         shopOrderRepository.save(newOrder);
-        newOrder.setUser(shopUser);
         for (OrderProductDTO dtoItem : paymentRequest.getCart()) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
             if (optProduct.isEmpty()) {return ResponseEntity.badRequest().body("Product not found.");}
             Product product = optProduct.get();
-            ProductQuantity quantity = new ProductQuantity();
-            quantity.setProduct(product);
-            quantity.setShoporder(newOrder);
-            quantity.setQuantity(dtoItem.getPieces());
+            ProductQuantity quantity = new ProductQuantity(newOrder, product, dtoItem.getPieces());
             newOrder.addProductQuantityToOrder(quantity);
             productQuantityRepository.save(quantity);
         }
         return ResponseEntity.ok("Transaction was successful.");
     }
+    @PutMapping("modifyOrder")
+    @Transactional
+    public ResponseEntity<?> modifyOrder(@RequestBody PaymentRequestDTO paymentRequest, @RequestHeader String Token) {
+        Optional<ShopUser> user = userRepository.findByToken(Token);
+        if (user.isEmpty()) {return ResponseEntity.badRequest().body("Token was not found on submiting new order.");}
+        if(!payPalGatewayService.isPaymentSuccessful(paymentRequest.getGoogleTokenAsJsonString())) {return ResponseEntity.badRequest().body("Payment failed.");}
+        Long idOfSelectedOrder = paymentRequest.getIdOfSelectedOrder();
+
+        List<ProductQuantity> productQuantities = productQuantityRepository.findByShoporderId(idOfSelectedOrder);
+
+        Optional<ShopOrder> orderToModify = shopOrderRepository.findById(idOfSelectedOrder);
+        if(orderToModify.isEmpty()) {return ResponseEntity.badRequest().body("Order was not found.");}
+        //paymentRequest.getCart()
+        for (OrderProductDTO dtoItem : paymentRequest.getCart()) {
+            boolean isProductFound = false;
+            for (ProductQuantity pq: productQuantities) {
+                if (Objects.equals(pq.getProduct().getId(), dtoItem.getId())) {
+                    pq.modifyOrderByQuantityChange(dtoItem.getPieces());
+                    isProductFound = true;
+                }
+            }
+            if (!isProductFound) {
+                Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
+                if (optProduct.isEmpty()) {return ResponseEntity.badRequest().body("Product not found.");}
+                Product product = optProduct.get();
+                ProductQuantity quantity = new ProductQuantity(orderToModify.get(), product, dtoItem.getPieces());
+                orderToModify.get().addProductQuantityToOrder(quantity);
+                productQuantityRepository.save(quantity);
+            }
+        }
+        return ResponseEntity.ok("Transaction was successful.");
+    }
     @DeleteMapping("/deleteOrder/{id}")
     @Transactional
-    public ResponseEntity<?> deleteOrder(@RequestHeader String Token, @PathVariable Long id) {
-        System.out.println(Token);
+    public ResponseEntity<Void> deleteOrder(@RequestHeader String Token, @PathVariable Long id) {
         Optional<ShopUser> shopUserOptional = userRepository.findByToken(Token);
         if(shopUserOptional.isEmpty()) {return ResponseEntity.badRequest().build();}
         shopOrderRepository.deleteById(id);

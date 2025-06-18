@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class PaymentRequestDTO {
     //flexible untyped node
+    private Long idOfSelectedOrder;
     private JsonNode google_tokenData;
     private List<OrderProductDTO> cart;
     public String getGoogleTokenAsJsonString() {

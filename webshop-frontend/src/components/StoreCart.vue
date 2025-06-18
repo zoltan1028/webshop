@@ -3,10 +3,18 @@
         <p>Cart</p>
         <cart-item @onQtyChanged="qtyChanged" v-for="item in getCartContent" :key="item.id" :id="item.id"
             :name="item.name" :pieces="item.pieces"></cart-item>
-        <base-button v-if="false" class="button-color-primary" @onClick="submitCart">Send Order</base-button>
         <base-button class="button-color-delete" @onClick="emptyCart">Empty Cart</base-button>
-        <google-pay @payment-failed="onPaymentFailed" @successful-payment="submitCart"
-            :paymentRequest="paymentRequestProp" v-if="isUserLoggedIn"></google-pay>
+        <div v-if="isUserLoggedIn && getOrdersOfUser.length != 0">
+            <div v-for="order in getOrdersOfUser" :key="order.id">{{ order.id }} {{ order.orderReceivedAt }}</div>
+            <legend class="font-semibold mb-2">Choose your order:</legend>
+            <label v-for="id in getToppings" :key="id" class="block mb-1">
+                <input type="radio" name="topping" :value="id" :checked="existingOrderId === id"
+                    @click="radioOnClick(id)" readonly />
+                {{ id }}
+            </label>
+        </div>
+        <google-pay v-if="isUserLoggedIn && getCartContent.length != 0" @payment-failed="onPaymentFailed"
+            @successful-payment="submitCart" :paymentRequest="paymentRequestProp"></google-pay>
     </div>
 </template>
 <script>
@@ -16,6 +24,8 @@ export default {
     components: { CartItem, GooglePay },
     data() {
         return {
+            existingOrderId: null,
+            toppings: [],
             paymentRequestProp: {
                 apiVersion: 2,
                 apiVersionMinor: 0,
@@ -57,9 +67,27 @@ export default {
         },
         getCartContent() {
             return this.$store.getters['orders/getCartContent']
+        },
+        getOrdersOfUser() {
+            return this.$store.getters['orders/getOrdersOfUser'].shopOrderList
+        },
+        getToppings() {
+            const userOrders = this.$store.getters['orders/getOrdersOfUser'].shopOrderList;
+            //undefined until promise is fulfilled even if store variable is initialized as object 
+            console.log(userOrders)
+            return userOrders ? userOrders.map(order => order.id) : undefined;
         }
     },
     created() {
+        const token = this.$store.getters['authentication/getAuth'].token
+
+        if (token) {
+            try {
+                this.$store.dispatch('orders/getOrdersOfUser', token);
+            } catch (e) {
+                this.error = e
+            }
+        }
         let cartContent = this.$store.getters['orders/getCartContent']
         let total = 0;
         cartContent.forEach(product => {
@@ -68,29 +96,48 @@ export default {
         this.paymentRequestProp.transactionInfo.totalPrice = String(total);
     },
     methods: {
+        radioOnClick(id) {
+            this.existingOrderId = this.existingOrderId === id ? null : id;
+        },
         async submitCart(event) {
             this.$store.getters['orders/getCartContent'].forEach(item => {
                 delete item.price
                 delete item.name
             })
+            this.submitOrder()
+            this.$store.dispatch('orders/emptyCart')
+            this.$router.push('/storecart/ordercomplete')
+
+        },
+        async submitOrder() {
             try {
-                await this.$store.dispatch('orders/submitOrder', {
-                    "data": {
-                        "cart": this.$store.getters['orders/getCartContent'],
-                        "google_tokenData": event.detail
-                    },
-                    "token": this.$store.getters['authentication/getAuth'].token,
-                })
+                if (this.existingOrderId === null) {
+                    await this.$store.dispatch('orders/submitOrder', {
+                        "data": {
+                            "cart": this.$store.getters['orders/getCartContent'],
+                            "google_tokenData": event.detail
+                        },
+                        "token": this.$store.getters['authentication/getAuth'].token,
+                    })
+                } else {
+                    await this.$store.dispatch('orders/modifyOrder', {
+                        "data": {
+                            "idOfSelectedOrder": this.existingOrderId,
+                            "cart": this.$store.getters['orders/getCartContent'],
+                            "google_tokenData": event.detail
+                        },
+                        "token": this.$store.getters['authentication/getAuth'].token,
+                    })
+                }
             } catch (e) {
                 console.log(e)
             }
-            this.$store.dispatch('orders/emptyCart')
-            this.$router.push('/storecart/ordercomplete')
         },
         onPaymentFailed(event) {
             this.$router.push('/storehome')
         },
         emptyCart() {
+            console.log(this.selectedTopping)
             this.$store.dispatch('orders/emptyCart')
         },
         qtyChanged(data) {

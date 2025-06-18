@@ -19,8 +19,21 @@ export default {
       throw error;
     }
   },
+  async modifyOrder(ctx: any, payload: OrderDTO) {
+    const response = await fetch(ordersController + "modifyOrder", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Token: payload.token,
+      },
+      body: JSON.stringify(payload.data),
+    });
+    if (!response.ok) {
+      const error = new Error(response.statusText);
+      throw error;
+    }
+  },
   async deleteOrder(ctx: any, payload: OrderDeleteDTO) {
-    console.log(payload)
     const response = await fetch(ordersController + "deleteOrder/" + payload.orderId, {
       method: "DELETE",
       headers: {
@@ -32,7 +45,7 @@ export default {
       throw error;
     }
   },
-  async getOrders(ctx: any, token: string) {
+  async getOrdersOfUser(ctx: any, token: string) {
     const response = await fetch(ordersController + "getOrdersOfUser", {
       method: "GET",
       headers: {

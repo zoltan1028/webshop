@@ -5,9 +5,11 @@ import com.e_commerce.webshop.model.*;
 import com.e_commerce.webshop.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,8 @@ public class InitDataBaseService {
     IShopOrderRepository shopOrderRepository;
     @Autowired
     IProductQuantityRepository productQuantityRepository;
+
+    @Transactional
     public void initH2() {
         ProductCategory fruit = new ProductCategory();
         ProductCategory vegetables = new ProductCategory();
@@ -54,7 +58,7 @@ public class InitDataBaseService {
             Product testProduct = new Product();
             testProduct.setName(names[i]);
             testProduct.setDescription(String.valueOf(i));
-            testProduct.setPrice(i);
+            testProduct.setPrice(BigDecimal.valueOf(i));
             testProduct.setStock(i);
             fruit.addProductToCategory(testProduct);
             productRepository.save(testProduct);
@@ -75,27 +79,21 @@ public class InitDataBaseService {
         List<OrderProductDTO> orderDataCart = objectMapper.convertValue(rawList, new TypeReference<>(){});
 
         Optional<ShopUser> shopUser = userRepository.findByUsername("admin");
-        ShopOrder newOrder = new ShopOrder();
-        shopOrderRepository.save(newOrder);
-        if (shopUser.isPresent()) {
+        ShopOrder newOrder;
+        if (shopUser.isEmpty()) {
+            newOrder = new ShopOrder(new ShopUser());
+        } else {
             ShopUser testUser = shopUser.get();
-            newOrder.setUser(testUser);
-            //testUser.addShopOrderToShopUser(newOrder);
+            newOrder = new ShopOrder(testUser);
         }
-        System.out.println(newOrder.getUser().getUsername());
         shopOrderRepository.save(newOrder);
 
         for (OrderProductDTO dtoItem : orderDataCart) {
             Optional<Product> optProduct = productRepository.findById(dtoItem.getId());
-            Product product = null;
-            if(optProduct.isPresent()) {
-                product = optProduct.get();
-            }
-            ProductQuantity quantity = new ProductQuantity();
-            quantity.setProduct(product);
-            quantity.setShoporder(newOrder);
-            quantity.setQuantity(dtoItem.getPieces());
+            Product product = null;if(optProduct.isPresent()) {product = optProduct.get();}
+            ProductQuantity quantity = new ProductQuantity(newOrder,product,dtoItem.getPieces());
             newOrder.addProductQuantityToOrder(quantity);
+            newOrder.setStatus(ShopOrder.OrderStatus.COMPLETED);
             productQuantityRepository.save(quantity);
         }
 

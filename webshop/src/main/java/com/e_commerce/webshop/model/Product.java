@@ -3,6 +3,7 @@ package com.e_commerce.webshop.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jdk.jfr.Category;
@@ -16,7 +17,7 @@ public class Product {
     @Id
     private Long id;
     private String name;
-    private int price;
+    private BigDecimal price;
     private int stock;
     private String description;
     private String picture;

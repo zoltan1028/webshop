@@ -2,10 +2,22 @@
     <h2>Store</h2>
     <div>Number of pages: {{ getNumberOfPages }}</div>
     <div>Items found: {{ getProductsCount }}</div>
-    <base-button mode="link" class="button-color-primary" to="/storecart">Cart</base-button>
+    <div class="row align-items-end justify-content-center my-3">
+        <div class="col-2">
+            <base-button v-if="getAuthentication.userRight === 'ADMIN'" class="button-color-delete" mode="link"
+                to="/manageproduct">Upload Stuff</base-button>
+        </div>
+        <div class="col-2">
+            <base-button v-if="getAuthentication.token !== null" class="button-color-delete" mode="link"
+                to="/orders">Orders</base-button>
+        </div>
+        <div class="col-2">
+            <base-button mode="link" class="button-color-primary" to="/storecart">Cart</base-button>
+        </div>
+    </div>
 
     <form @submit.prevent="submitLogin">
-        <div class="row">
+        <div class="row align-items-end justify-content-center">
             <div class="col-2">
                 <label for="username" class="form-label">Username</label>
                 <input v-model="username" type="text" id="username" class="form-control" required>
@@ -16,18 +28,14 @@
             </div>
             <div class="col-2">
                 <base-button class="button-color-delete">{{ getAuthentication.token !== null ? 'Logout' :
-        'Login' }}</base-button>
+                    'Login' }}</base-button>
+            </div>
+            <div class="col-2">
+                <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
             </div>
 
         </div>
     </form>
-    <div>
-        <base-button class="button-color-primary" mode="link" to="/registration">Registration</base-button>
-    </div>
-    <base-button v-if="getAuthentication.userRight === 'ADMIN'" class="button-color-delete" mode="link"
-        to="/manageproduct">Upload Stuff</base-button>
-    <base-button v-if="getAuthentication.token !== null" class="button-color-delete" mode="link"
-        to="/orders">Orders</base-button>
 
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>
     </div>
@@ -43,11 +51,11 @@
                 <li @click="updatePageNums('decrease')" class="page-item"><a class="page-link" href="#">Previous</a>
                 </li>
                 <li @click="loadProducts(page - 1)" class="page-item"><a class="page-link" href="#">{{ page - 1
-                        }}</a></li>
+                }}</a></li>
                 <li @click="loadProducts(page)" class="page-item"><a class="page-link" href="#">{{ page
-                        }}</a></li>
+                }}</a></li>
                 <li @click="loadProducts(page + 1)" class="page-item"><a class="page-link" href="#">{{ page + 1
-                        }}</a></li>
+                }}</a></li>
                 <li @click="updatePageNums('increase')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
         </nav>

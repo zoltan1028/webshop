@@ -4,7 +4,7 @@ export default {
     getCartContent(state: any): CartItem[]  {
             return state.cart;
         },
-    getOrders(state: any) : any {
+    getOrdersOfUser(state: any) : any {
         return state.orders
     }
 };

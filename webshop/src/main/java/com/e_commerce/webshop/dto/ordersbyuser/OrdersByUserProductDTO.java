@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -14,7 +15,7 @@ import java.util.List;
 public class OrdersByUserProductDTO {
     private Long id;
     private String name;
-    private int price;
+    private BigDecimal price;
     public OrdersByUserProductDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();

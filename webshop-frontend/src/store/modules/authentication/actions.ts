@@ -16,7 +16,6 @@ export default {
       throw error;
     }
     const responseData = await response.json();
-    console.log(responseData)
     ctx.commit("setToken", responseData);
   },
   async authLogout(ctx: any, token: string) {

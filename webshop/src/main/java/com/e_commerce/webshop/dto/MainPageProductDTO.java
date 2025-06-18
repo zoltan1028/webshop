@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -15,7 +16,7 @@ import java.util.List;
 public class MainPageProductDTO {
     private Long id;
     private String name;
-    private int price;
+    private BigDecimal price;
     private int stock;
     private String description;
     private String picture;

@@ -37,11 +37,9 @@ public class AuthenticationService {
         return shopUser.isPresent();
     }
     public String hashPassword(String password) {
-        String hashedPassword = passwordEncoder.encode(password);
-        return hashedPassword;
+        return passwordEncoder.encode(password);
     }
     public boolean isPasswordValid(String rawPw, String hashedPassword) {
-        boolean isPasswordMatch = passwordEncoder.matches(rawPw, hashedPassword);
-        return isPasswordMatch;
+        return passwordEncoder.matches(rawPw, hashedPassword);
     }
 }
