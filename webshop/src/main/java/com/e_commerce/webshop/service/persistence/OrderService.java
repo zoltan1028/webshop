@@ -1,4 +1,4 @@
-package com.e_commerce.webshop.service.APIService;
+package com.e_commerce.webshop.service.persistence;
 
 import com.e_commerce.webshop.dto.OrderProductDTO;
 import com.e_commerce.webshop.dto.PaymentRequestDTO;
@@ -10,14 +10,10 @@ import com.e_commerce.webshop.repository.IProductQuantityRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

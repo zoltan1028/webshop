@@ -1,8 +1,8 @@
 package com.e_commerce.webshop.controller;
 import com.e_commerce.webshop.dto.MainPageProductDTO;
 import com.e_commerce.webshop.dto.NewProductDTO;
-import com.e_commerce.webshop.service.APIService.ProductService;
-import com.e_commerce.webshop.service.AuthenticationService;
+import com.e_commerce.webshop.service.auth.AuthenticationService;
+import com.e_commerce.webshop.service.persistence.ProductService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

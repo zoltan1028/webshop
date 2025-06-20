@@ -1,5 +1,4 @@
-package com.e_commerce.webshop;
-import com.e_commerce.webshop.service.TokenService;
+package com.e_commerce.webshop.service.auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;

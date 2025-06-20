@@ -1,4 +1,4 @@
-package com.e_commerce.webshop.service;
+package com.e_commerce.webshop.service.payment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 //placeholder class for payment gateway implementation

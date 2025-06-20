@@ -1,10 +1,10 @@
-package com.e_commerce.webshop.service.APIService;
+package com.e_commerce.webshop.service.persistence;
 
 import com.e_commerce.webshop.dto.MainPageProductDTO;
 import com.e_commerce.webshop.dto.NewProductDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.repository.IProductRepository;
-import com.e_commerce.webshop.service.PictureService;
+import com.e_commerce.webshop.service.storage.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

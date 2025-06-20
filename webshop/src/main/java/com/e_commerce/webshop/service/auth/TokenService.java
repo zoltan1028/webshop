@@ -1,4 +1,4 @@
-package com.e_commerce.webshop.service;
+package com.e_commerce.webshop.service.auth;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
 import jakarta.transaction.Transactional;

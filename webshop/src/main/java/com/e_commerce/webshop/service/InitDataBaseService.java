@@ -3,6 +3,8 @@ package com.e_commerce.webshop.service;
 import com.e_commerce.webshop.dto.OrderProductDTO;
 import com.e_commerce.webshop.model.*;
 import com.e_commerce.webshop.repository.*;
+import com.e_commerce.webshop.service.auth.AuthenticationService;
+import com.e_commerce.webshop.service.storage.PictureService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;

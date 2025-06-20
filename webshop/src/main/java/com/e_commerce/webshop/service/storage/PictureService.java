@@ -1,4 +1,4 @@
-package com.e_commerce.webshop.service;
+package com.e_commerce.webshop.service.storage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.*;

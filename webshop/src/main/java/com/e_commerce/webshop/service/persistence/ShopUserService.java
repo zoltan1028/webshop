@@ -1,9 +1,9 @@
-package com.e_commerce.webshop.service.APIService;
+package com.e_commerce.webshop.service.persistence;
 
 import com.e_commerce.webshop.dto.AuthUserDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
-import com.e_commerce.webshop.service.AuthenticationService;
+import com.e_commerce.webshop.service.auth.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

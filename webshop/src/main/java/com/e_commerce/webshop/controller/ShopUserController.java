@@ -1,8 +1,8 @@
 package com.e_commerce.webshop.controller;
 import com.e_commerce.webshop.dto.AuthUserDTO;
 import com.e_commerce.webshop.dto.AuthUserLoginDTO;
-import com.e_commerce.webshop.service.APIService.ShopUserService;
-import com.e_commerce.webshop.service.AuthenticationService;
+import com.e_commerce.webshop.service.auth.AuthenticationService;
+import com.e_commerce.webshop.service.persistence.ShopUserService;
 import jakarta.transaction.Transactional;
 import org.hibernate.SessionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class ShopUserController {
         try {
             authenticationService.isUserNameTaken(newUser);
         } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken.");
         }
         shopUserService.saveUser(newUser);
         return ResponseEntity.ok().body("Registration was successful.");

@@ -1,7 +1,6 @@
 package com.e_commerce.webshop.config;
-
-import com.e_commerce.webshop.LogoutHandler;
-import com.e_commerce.webshop.service.TokenService;
+import com.e_commerce.webshop.service.auth.LogoutHandler;
+import com.e_commerce.webshop.service.auth.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
