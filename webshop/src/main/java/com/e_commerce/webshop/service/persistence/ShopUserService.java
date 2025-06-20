@@ -14,11 +14,7 @@ public class ShopUserService {
     @Autowired
     AuthenticationService authenticationService;
     public void saveUser(AuthUserDTO userDTO) {
-        ShopUser newShopUser = new ShopUser();
-        newShopUser.setUsername(userDTO.getUsername());
-        newShopUser.setPassword(authenticationService.hashPassword(userDTO.getPassword()));
-        newShopUser.setUserRight(ShopUser.UserRight.USER);
+        ShopUser newShopUser = new ShopUser(userDTO.getUsername(), authenticationService.hashPassword(userDTO.getPassword()), ShopUser.UserRight.USER);
         userRepository.save(newShopUser);
     }
-
 }

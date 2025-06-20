@@ -26,4 +26,18 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "CategoryId")
     private ProductCategory category;
+    public Product() {}
+    public Product(String name, BigDecimal price, int stock, ProductCategory category) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+        this.setCategory(category);
+    }
+    public void setCategory(ProductCategory category) {
+        this.category = category;
+        if (category != null && !category.getProductList().contains(this)) {
+            category.addProductToCategory(this);
+        }
+    }
+
 }

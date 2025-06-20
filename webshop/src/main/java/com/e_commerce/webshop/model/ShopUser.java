@@ -30,6 +30,12 @@ public class ShopUser {
         ADMIN,
         USER;
     }
+    public ShopUser() {}
+    public ShopUser(String username, String password, UserRight userRight) {
+        this.username = username;
+        this.password = password;
+        this.userRight = userRight;
+    }
     public void addShopOrderToShopUser(ShopOrder order) {
         this.shopOrderList.add(order);
         order.setUser(this);

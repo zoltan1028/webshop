@@ -13,25 +13,6 @@ import java.util.List;
 @Setter
 @Entity
 public class ShopOrder {
-    public ShopOrder() {}
-    public ShopOrder(ShopUser user) {
-        this.orderReceivedAt = OffsetDateTime.now();
-        this.status = OrderStatus.PENDING;
-        this.user = user;
-    }
-    public enum OrderStatus {
-        PENDING,
-        COMPLETED;
-    }
-    public void addProductQuantityToOrder(ProductQuantity pq) {
-        this.quantityList.add(pq);
-        pq.setShoporder(this);
-        this.orderTotal = this.orderTotal.add(pq.getSum());
-    }
-    public void removeProductQuantityFromOrder(ProductQuantity pq) {
-        this.quantityList.remove(pq);
-        pq.setShoporder(null);
-    }
     @GeneratedValue
     @Id
     private Long id;
@@ -43,9 +24,24 @@ public class ShopOrder {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private OffsetDateTime orderReceivedAt;
-    private BigDecimal orderTotal = BigDecimal.ZERO;;
-
-    public void  setOrderTotal() {
-
+    private BigDecimal orderTotal = BigDecimal.ZERO;
+    public enum OrderStatus {
+        PENDING,
+        COMPLETED;
+    }
+    public ShopOrder() {}
+    public ShopOrder(ShopUser user) {
+        this.orderReceivedAt = OffsetDateTime.now();
+        this.status = OrderStatus.PENDING;
+        this.user = user;
+    }
+    public void addProductQuantityToOrder(ProductQuantity pq) {
+        this.quantityList.add(pq);
+        pq.setShoporder(this);
+        this.orderTotal = this.orderTotal.add(pq.getSum());
+    }
+    public void removeProductQuantityFromOrder(ProductQuantity pq) {
+        this.quantityList.remove(pq);
+        pq.setShoporder(null);
     }
 }
