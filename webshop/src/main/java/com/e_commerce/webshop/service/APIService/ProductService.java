@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Optional;
 
 
 @Service
@@ -42,8 +41,7 @@ public class ProductService {
         newProduct.setStock(productDTO.getStock());
         newProduct.setDescription(productDTO.getDescription());
         productRepository.save(newProduct);
-        //save product pic with generated id
-        Optional<Product> managedProduct = productRepository.findById(newProduct.getId());
-        managedProduct.ifPresent(value -> pictureService.writePicturesToFile(value.getId(), base64String));
+        Long productId = productRepository.findById(newProduct.getId()).map(Product::getId).get();
+        pictureService.writePicturesToFile(productId, base64String);
     }
 }

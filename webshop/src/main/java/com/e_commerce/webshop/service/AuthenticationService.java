@@ -3,13 +3,12 @@ import com.e_commerce.webshop.dto.AuthUserDTO;
 import com.e_commerce.webshop.dto.AuthUserLoginDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
+import org.hibernate.SessionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -35,10 +34,6 @@ public class AuthenticationService {
     public boolean isAdmin(String token) {
         return token.length() == 7;
     }
-    public boolean isLoggedInWithToken(String token) {
-        Optional<ShopUser> shopUser = userRepository.findByToken(token);
-        return shopUser.isPresent();
-    }
     public String hashPassword(String password) {
         return passwordEncoder.encode(password);
     }
@@ -48,22 +43,25 @@ public class AuthenticationService {
     public void isUserNameTaken(AuthUserDTO userDTO) {
         userRepository.findByUsername(userDTO.getUsername())
                 .ifPresent(u -> {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken.");
+                    throw new IllegalStateException();
                 });
 
     }
     public ShopUser getUserIfHasValidToken(String token) {
-        ShopUser shopUser = userRepository.findByToken(token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token not found."));
-        return shopUser;
+        return userRepository.findByToken(token).get();
+    }
+    public boolean isUserLoggedInWithToken(String token) {
+        userRepository.findByToken(token).get();
+        return true;
     }
     public void logout(String token) {
         ShopUser shopUser = getUserIfHasValidToken(token);
         shopUser.setToken(null);
     }
     public AuthUserLoginDTO login(AuthUserDTO dtoUser) {
-        ShopUser shopUser = userRepository.findByUsername(dtoUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "The provided username or password was not found."));
-        if (!isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The provided username or password was not found.");}
-        if (shopUser.getToken() != null) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already logged in.");}
+        ShopUser shopUser = userRepository.findByUsername(dtoUser.getUsername()).get();
+        if (!isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {throw new BadCredentialsException("The provided username or password was not found.");}
+        if (shopUser.getToken() != null) { throw new SessionException("User already logged in.");}
         if (shopUser.getUserRight().equals(ShopUser.UserRight.ADMIN)) {
             shopUser.setToken(GenerateAdminToken());
         } else {
