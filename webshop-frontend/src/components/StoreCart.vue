@@ -13,7 +13,7 @@
                 {{ id }}
             </label>
         </div>
-        <google-pay v-if="isUserLoggedIn && getCartContent.length != 0" @payment-failed="onPaymentFailed"
+        <google-pay v-if="isUserLoggedIn && getCartContent != undefined && getCartContent.length != 0" @payment-failed="onPaymentFailed"
             @successful-payment="submitCart" :paymentRequest="paymentRequestProp"></google-pay>
     </div>
 </template>

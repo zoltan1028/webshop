@@ -1,6 +1,6 @@
 package com.e_commerce.webshop.service.auth;
-import com.e_commerce.webshop.dto.AuthUserDTO;
-import com.e_commerce.webshop.dto.AuthUserLoginDTO;
+import com.e_commerce.webshop.dto.AuthLoginDTO;
+import com.e_commerce.webshop.dto.AuthLoginResponseDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
 import org.hibernate.SessionException;
@@ -40,7 +40,7 @@ public class AuthenticationService {
     public boolean isPasswordValid(String rawPw, String hashedPassword) {
         return passwordEncoder.matches(rawPw, hashedPassword);
     }
-    public void isUserNameTaken(AuthUserDTO userDTO) {
+    public void isUserNameTaken(AuthLoginDTO userDTO) {
         userRepository.findByUsername(userDTO.getUsername())
                 .ifPresent(u -> {
                     throw new IllegalStateException();
@@ -58,7 +58,7 @@ public class AuthenticationService {
         ShopUser shopUser = getUserIfHasValidToken(token);
         shopUser.setToken(null);
     }
-    public AuthUserLoginDTO login(AuthUserDTO dtoUser) {
+    public AuthLoginResponseDTO login(AuthLoginDTO dtoUser) {
         ShopUser shopUser = userRepository.findByUsername(dtoUser.getUsername()).get();
         if (!isPasswordValid(dtoUser.getPassword(), shopUser.getPassword())) {throw new BadCredentialsException("The provided username or password was not found.");}
         if (shopUser.getToken() != null) { throw new SessionException("User already logged in.");}
@@ -67,7 +67,7 @@ public class AuthenticationService {
         } else {
             shopUser.setToken(GenerateToken());
         }
-        AuthUserLoginDTO dto = new AuthUserLoginDTO();
+        AuthLoginResponseDTO dto = new AuthLoginResponseDTO();
         dto.setToken(shopUser.getToken());
         dto.setUserRight(shopUser.getUserRight().toString());
         return dto;

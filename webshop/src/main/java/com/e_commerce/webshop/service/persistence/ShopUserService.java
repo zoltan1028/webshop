@@ -1,6 +1,6 @@
 package com.e_commerce.webshop.service.persistence;
 
-import com.e_commerce.webshop.dto.AuthUserDTO;
+import com.e_commerce.webshop.dto.AuthLoginDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IUserRepository;
 import com.e_commerce.webshop.service.auth.AuthenticationService;
@@ -13,7 +13,7 @@ public class ShopUserService {
     IUserRepository userRepository;
     @Autowired
     AuthenticationService authenticationService;
-    public void saveUser(AuthUserDTO userDTO) {
+    public void saveUser(AuthLoginDTO userDTO) {
         ShopUser newShopUser = new ShopUser(userDTO.getUsername(), authenticationService.hashPassword(userDTO.getPassword()), ShopUser.UserRight.USER);
         userRepository.save(newShopUser);
     }

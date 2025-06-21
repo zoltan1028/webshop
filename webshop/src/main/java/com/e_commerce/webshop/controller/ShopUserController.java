@@ -1,6 +1,6 @@
 package com.e_commerce.webshop.controller;
-import com.e_commerce.webshop.dto.AuthUserDTO;
-import com.e_commerce.webshop.dto.AuthUserLoginDTO;
+import com.e_commerce.webshop.dto.AuthLoginDTO;
+import com.e_commerce.webshop.dto.AuthLoginResponseDTO;
 import com.e_commerce.webshop.service.auth.AuthenticationService;
 import com.e_commerce.webshop.service.persistence.ShopUserService;
 import jakarta.transaction.Transactional;
@@ -22,8 +22,8 @@ public class ShopUserController {
     ShopUserService shopUserService;
     @PostMapping("login")
     @Transactional
-    public ResponseEntity<AuthUserLoginDTO> LoginUser(@RequestBody AuthUserDTO dtoUser) {
-        AuthUserLoginDTO authObject;
+    public ResponseEntity<AuthLoginResponseDTO> LoginUser(@RequestBody AuthLoginDTO dtoUser) {
+        AuthLoginResponseDTO authObject;
         try {
             authObject = authenticationService.login(dtoUser);
         } catch (NoSuchElementException e) {
@@ -47,7 +47,7 @@ public class ShopUserController {
     }
     @PostMapping("register")
     @Transactional
-    public ResponseEntity<String> Registration(@RequestBody AuthUserDTO newUser) {
+    public ResponseEntity<String> Registration(@RequestBody AuthLoginDTO newUser) {
         try {
             authenticationService.isUserNameTaken(newUser);
         } catch (IllegalStateException e) {
