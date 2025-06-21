@@ -1,5 +1,6 @@
 package com.e_commerce.webshop.controller;
 import com.e_commerce.webshop.dto.PaymentRequestDTO;
+import com.e_commerce.webshop.dto.ordersbyuser.OrdersByUserMapper;
 import com.e_commerce.webshop.dto.ordersbyuser.OrdersByUserUserDTO;
 import com.e_commerce.webshop.model.ShopUser;
 import com.e_commerce.webshop.repository.IShopOrderRepository;
@@ -27,6 +28,8 @@ public class OrderController {
     AuthenticationService authenticationService;
     @Autowired
     OrderService orderService;
+    @Autowired
+    OrdersByUserMapper ordersByUserMapper;
 
     @GetMapping("getOrdersOfUser")
     public ResponseEntity<OrdersByUserUserDTO> getOrdersOfUserByToken(@RequestHeader String Token) {
@@ -36,7 +39,7 @@ public class OrderController {
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         }
-        OrdersByUserUserDTO userDTO = new OrdersByUserUserDTO(shopUser);
+        OrdersByUserUserDTO userDTO = ordersByUserMapper.userToDto(shopUser);
         return  ResponseEntity.ok(userDTO);
     }
     @PostMapping("submitOrder")

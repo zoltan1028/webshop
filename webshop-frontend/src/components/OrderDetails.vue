@@ -9,8 +9,8 @@
             </thead>
             <tbody>
                 <tr v-for="orderItem in getOrderedProducts" :key="orderItem.id">
-                    <td>{{ orderItem.product.name }}</td>
-                    <td>{{ orderItem.product.price }}</td>
+                    <td>{{ orderItem.name }}</td>
+                    <td>{{ orderItem.price }}</td>
                     <td>{{ orderItem.quantity }}</td>
                     <td>{{ orderItem.sum }}</td>     
                 </tr>
