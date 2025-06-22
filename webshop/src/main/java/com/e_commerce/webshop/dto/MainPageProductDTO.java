@@ -20,6 +20,7 @@ public class MainPageProductDTO {
     private int stock;
     private String description;
     private String picture;
+    private  String category;
     public MainPageProductDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
@@ -27,5 +28,6 @@ public class MainPageProductDTO {
         this.stock = product.getStock();
         this.description = product.getDescription();
         this.picture = product.getPicture();
+        this.category = product.getCategory().getCategoryEnum().toString();
     }
 }

@@ -5,6 +5,7 @@
             <p class="text-primary">név : {{ name }}</p>
             <p class="text-primary">ár : {{ price }}</p>
             <p class="text-primary">készleten : {{ stock }}</p>
+            <p class="text-primary">kategória : {{ category.toLowerCase() }}</p>
             <p class="text-primary">leírás : {{ description }}</p>
             <base-button class="button-color-primary" mode="button" @onClick="addToCart">Add To Cart</base-button>
         </base-card>
@@ -12,7 +13,7 @@
 </template>
 <script>
 export default {
-    props: ['id', 'name', 'price', 'weight', 'stock', 'description', 'picture'],
+    props: ['id', 'name', 'price', 'weight', 'stock', 'description', 'picture', 'category'],
     data() {
         return {
             pieces: 1

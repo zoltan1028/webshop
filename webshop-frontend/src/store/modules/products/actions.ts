@@ -6,14 +6,10 @@ export default {
   saveProductForm(ctx: any, payload: Product) {
     ctx.commit("saveProductForm", payload);
   },
-  async getProducts(ctx: any, param: string) {
-    const params = {
-      page: param,
-      size: "5",
-    };
-    const url = new URL(productsController + "getProducts");
-    url.search = new URLSearchParams(params).toString();
-
+  async getProducts(ctx: any, param: Record<string, string>) {
+    const params = new URLSearchParams(param);
+    const paramsString = params.toString();
+    const url = new URL(productsController + "getProducts?" + paramsString);
     const response = await fetch(url, {
       method: "GET",
     });

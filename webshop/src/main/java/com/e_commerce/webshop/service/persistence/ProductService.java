@@ -3,11 +3,11 @@ package com.e_commerce.webshop.service.persistence;
 import com.e_commerce.webshop.dto.MainPageProductDTO;
 import com.e_commerce.webshop.dto.NewProductDTO;
 import com.e_commerce.webshop.model.Product;
+import com.e_commerce.webshop.model.ProductCategory;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.service.storage.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +20,12 @@ public class ProductService {
     IProductRepository productRepository;
     @Autowired
     PictureService pictureService;
-    public Page<MainPageProductDTO> getMainPage(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> pageResult = productRepository.findAll(pageable);
+    public Page<MainPageProductDTO> getMainPage(ProductCategory.ShopProductCategory category, Pageable pageable) {
+        Page<Product> pageResult = productRepository.findByCategory_CategoryEnum(category, pageable);
         Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
-        dtoPageResult.getContent().forEach(product -> {
+        dtoPageResult.getContent().forEach(dtoProduct -> {
             try {
-                product.setPicture(pictureService.getProductPictureById(product.getId()));
+                dtoProduct.setPicture(pictureService.getProductPictureById(dtoProduct.getId()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

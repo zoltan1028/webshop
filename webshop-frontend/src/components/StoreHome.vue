@@ -2,7 +2,7 @@
     <h2>Store</h2>
     <div>Number of pages: {{ getNumberOfPages }}</div>
     <div>Items found: {{ getProductsCount }}</div>
-    <div class="row align-items-end justify-content-center my-3">
+    <div class="row align-items-center justify-content-center my-3">
         <div class="col-2">
             <base-button v-if="getAuthentication.userRight === 'ADMIN'" class="button-color-delete" mode="link"
                 to="/manageproduct">Upload Stuff</base-button>
@@ -17,7 +17,7 @@
     </div>
 
     <form @submit.prevent="submitLogin">
-        <div class="row align-items-end justify-content-center">
+        <div class="row align-items-center justify-content-center">
             <div class="col-2">
                 <label for="username" class="form-label">Username</label>
                 <input v-model="username" type="text" id="username" class="form-control" required>
@@ -37,12 +37,26 @@
         </div>
     </form>
 
+    <div class="row align-items-center justify-content-end">
+        <div class="col-2">
+            <div class="dropdown">
+                <base-button class="button-color-primary dropdown-toggle" mode="button" id="kategoria"
+                    data-bs-toggle="dropdown">{{ orderBy }}</base-button>
+                <ul class="dropdown-menu">
+                    <li v-for="c in getCategories" :key="c" :value="c"><a class="dropdown-item" href="#"
+                            @click.prevent="setOrderBy(c) == c">{{ c }}</a></li>
+                </ul>
+            </div>
+        </div>
+        <base-button class="button-color-delete" @onClick="invertSortDir">{{ buttonLabelSort }}</base-button>
+    </div>
+
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>
     </div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
         <store-item v-for="product in getProducts" :id="product.id" :name="product.name" :price="product.price"
             :weight="product.weight" :stock="product.stock" :description="product.description"
-            :picture="product.picture" :key="product.id">
+            :picture="product.picture" :category="product.category" :key="product.id">
         </store-item>
     </div>
     <div class="d-flex justify-content-center">
@@ -83,13 +97,25 @@ export default {
             username: "",
             password: "",
             error: null,
+            buttonLabelSort: "Asc",
+            orderBy: "name",
             page: 1,
+            query: {
+                page: 1,
+                size: 5,
+                category: "FRUIT",
+                sort: "name,asc"
+            }
         }
     },
     computed: {
         getProducts() {
+            const product = this.$store.getters['products/getProducts'];
+            return product ? product.content : null;
+        },
+        getCategories() {
             const products = this.$store.getters['products/getProducts'];
-            return products ? products.content : null;
+            return products ? Object.keys(products.content[0]) : [];
         },
         getProductsCount() {
             const products = this.$store.getters['products/getProducts'];
@@ -105,13 +131,26 @@ export default {
         }
     },
     methods: {
+        setOrderBy(value) {
+            this.orderBy = value;
+            this.query.sort = `${value},desc`
+            console.log(this.query)
+
+            this.loadProducts(this.query.page);
+        },
+        invertSortDir() {
+            this.buttonLabelSort = this.buttonLabelSort === 'asc' ? 'desc' : 'asc'
+            this.query.sort = `${this.orderBy},${this.buttonLabelSort}`
+            console.log(this.query)
+
+            this.loadProducts(this.query.page)
+        },
         connectWebSocket() {
             this.socket = new WebSocket('ws://localhost:8080/notify');
             this.socket.onopen = () => {
                 this.isConnected = true;
                 console.log('WebSocket connection opened.');
             };
-
             this.socket.onmessage = (event) => {
                 //on expired token message removes token -- auth check for UI login/out --
                 this.lastNotification = event.data;
@@ -147,8 +186,12 @@ export default {
         resetError() {
             this.error = null;
         },
-        async loadProducts(page = "0") {
-            await this.$store.dispatch('products/getProducts', page);
+        async loadProducts(page = 0) {
+            if (page !== undefined) {
+                this.query.page = page
+            }
+            console.log(this.query)
+            await this.$store.dispatch('products/getProducts', this.query);
         },
         async submitLogin() {
             const auth = this.$store.getters['authentication/getAuth']

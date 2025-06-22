@@ -14,7 +14,7 @@ public class ProductCategory {
     @Id
     private Long id;
     @Enumerated(EnumType.STRING)
-    private ShopProductCategory category;
+    private ShopProductCategory categoryEnum;
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Product> productList = new ArrayList<>();
     public enum ShopProductCategory {
@@ -23,7 +23,7 @@ public class ProductCategory {
     }
     public ProductCategory () {}
     public ProductCategory (ShopProductCategory category) {
-        this.category = category;
+        this.categoryEnum = category;
     }
     public void addProductToCategory(Product product) {
         if (product != null && !this.productList.contains(product) ) {
