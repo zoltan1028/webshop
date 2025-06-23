@@ -62,7 +62,8 @@ export default {
                 weight: this.weight,
                 stock: this.stock,
                 description: this.description,
-                picture: this.base64Image
+                picture: this.base64Image,
+                category: "FRUIT"
             }
             try {
                 await this.$store.dispatch('products/postProduct', { "form": newProduct, "token": this.$store.getters['authentication/getAuth'].token });

@@ -31,6 +31,8 @@ export default {
       },
       body: JSON.stringify(payload.form),
     });
+                console.log(response.text())
+
     if (!response.ok) {
       const error = new Error(response.statusText);
       throw error;

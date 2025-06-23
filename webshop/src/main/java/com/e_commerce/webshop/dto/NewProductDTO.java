@@ -1,4 +1,5 @@
 package com.e_commerce.webshop.dto;
+import com.e_commerce.webshop.model.ProductCategory;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,4 +13,5 @@ public class NewProductDTO {
     private int stock;
     private String description;
     private String picture;
+    private String category;
 }

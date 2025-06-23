@@ -17,7 +17,7 @@
     </div>
 
     <form @submit.prevent="submitLogin">
-        <div class="row align-items-center justify-content-center">
+        <div class="row align-items-center justify-content-end">
             <div class="col-2">
                 <label for="username" class="form-label">Username</label>
                 <input v-model="username" type="text" id="username" class="form-control" required>
@@ -48,7 +48,10 @@
                 </ul>
             </div>
         </div>
-        <base-button class="button-color-delete" @onClick="invertSortDir">{{ buttonLabelSort }}</base-button>
+        <div class="col-2">
+            <base-button class="button-color-delete" @onClick="invertSortDir">{{ buttonLabelSort }}</base-button>
+
+        </div>
     </div>
 
     <div v-if="!getProducts" class="d-flex justify-content-center align-items-center"><span class="spinner"></span>
@@ -62,15 +65,14 @@
     <div class="d-flex justify-content-center">
         <nav aria-label="Page navigation example">
             <ul class="pagination">
-                <li @click="updatePageNums('decrease')" class="page-item"><a class="page-link" href="#">Previous</a>
+                <li @click="onButtonPress('previous')" class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel }}</a>
                 </li>
-                <li @click="loadProducts(page - 1)" class="page-item"><a class="page-link" href="#">{{ page - 1
+                <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 1
                 }}</a></li>
-                <li @click="loadProducts(page)" class="page-item"><a class="page-link" href="#">{{ page
+                <li @click="onButtonPress('right')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
                 }}</a></li>
-                <li @click="loadProducts(page + 1)" class="page-item"><a class="page-link" href="#">{{ page + 1
-                }}</a></li>
-                <li @click="updatePageNums('increase')" class="page-item"><a class="page-link" href="#">Next</a></li>
+                <li @click="onButtonPress('next')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
         </nav>
     </div>
@@ -97,14 +99,22 @@ export default {
             username: "",
             password: "",
             error: null,
-            buttonLabelSort: "Asc",
+            buttonLabelSort: "asc",
             orderBy: "name",
-            page: 1,
+            buttonLabel: 0,
+            previousButton: "left",
             query: {
-                page: 1,
+                page: 0,
                 size: 5,
                 category: "FRUIT",
                 sort: "name,asc"
+            },
+            buttonLookup: {
+                left: { left: 0, middle: -1, right: -2 },
+                middle: { left: 1, middle: 0, right: -1 },
+                right: { left: 2, middle: 1, right: 0 },
+                next: { left: 3, middle: 2, right: 1 },
+                previous: { left: -1, middle: -2, right: -3 }
             }
         }
     },
@@ -133,37 +143,27 @@ export default {
     methods: {
         setOrderBy(value) {
             this.orderBy = value;
-            this.query.sort = `${value},desc`
-            console.log(this.query)
-
-            this.loadProducts(this.query.page);
+            this.query.sort = `${this.orderBy},${this.buttonLabelSort}`
+            this.loadProducts();
         },
         invertSortDir() {
             this.buttonLabelSort = this.buttonLabelSort === 'asc' ? 'desc' : 'asc'
             this.query.sort = `${this.orderBy},${this.buttonLabelSort}`
-            console.log(this.query)
-
-            this.loadProducts(this.query.page)
+            this.loadProducts()
         },
         connectWebSocket() {
             this.socket = new WebSocket('ws://localhost:8080/notify');
             this.socket.onopen = () => {
                 this.isConnected = true;
-                console.log('WebSocket connection opened.');
             };
             this.socket.onmessage = (event) => {
                 //on expired token message removes token -- auth check for UI login/out --
                 this.lastNotification = event.data;
-                console.log('Received notification:', event.data);
                 this.$store.dispatch('authentication/removeToken');
                 this.$router.push('/')
-                console.log("tokenremoved:")
-                console.log(this.$store.getters['authentication/getAuth'].token)
             };
             this.socket.onclose = () => {
                 this.isConnected = false;
-                console.log('WebSocket connection closed.');
-                // Optionally, attempt to reconnect
                 setTimeout(this.connectWebSocket, 1000); // Try reconnecting after 5 seconds
             };
 
@@ -171,32 +171,37 @@ export default {
                 console.error('WebSocket error:', error);
             };
         },
-        async updatePageNums(operation) {
-            if (operation === "increase") {
-                await this.loadProducts(this.page + 2);
-                if (!this.$store.getters['products/getProductsIsEmpty']) {
-                    this.page += 1;
-                }
-            }
-            else if (operation === 'decrease' && this.page > 1) {
-                this.page -= 1;
-                this.loadProducts(this.page - 1);
-            }
-        },
         resetError() {
             this.error = null;
         },
-        async loadProducts(page = 0) {
-            if (page !== undefined) {
-                this.query.page = page
+        async onButtonPress(button) {
+            if (button === this.previousButton) return;
+            const step = this.buttonLookup?.[button]?.[this.previousButton] ?? 0;
+            if (step < 0 && this.query.page === 0) return;
+            this.query.page += this.buttonLookup[button][this.previousButton];
+            await this.loadProducts();
+            const isPageEmpty = this.$store.getters['products/getProductsIsEmpty']
+            if (isPageEmpty) {this.query.page -= 1;return;}
+            this.updateButtonLabels(button);
+        },
+        updateButtonLabels(button) {
+            if (button === "next") {
+                this.previousButton = "right";
+                this.buttonLabel += 1;
+            } else if (button === "previous") {
+                this.previousButton = "left";
+                this.buttonLabel -= 1;
+            } else {
+                this.previousButton = button;
             }
+        },
+        async loadProducts() {
             console.log(this.query)
             await this.$store.dispatch('products/getProducts', this.query);
         },
         async submitLogin() {
             const auth = this.$store.getters['authentication/getAuth']
             if (!auth.token) {
-                console.log(auth.token)
                 const loginForm = {
                     username: this.username,
                     password: this.password,

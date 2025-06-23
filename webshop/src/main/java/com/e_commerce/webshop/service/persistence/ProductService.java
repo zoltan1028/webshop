@@ -4,6 +4,7 @@ import com.e_commerce.webshop.dto.MainPageProductDTO;
 import com.e_commerce.webshop.dto.NewProductDTO;
 import com.e_commerce.webshop.model.Product;
 import com.e_commerce.webshop.model.ProductCategory;
+import com.e_commerce.webshop.repository.ICategoryRepository;
 import com.e_commerce.webshop.repository.IProductRepository;
 import com.e_commerce.webshop.service.storage.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import java.io.IOException;
 public class ProductService {
     @Autowired
     IProductRepository productRepository;
+    @Autowired
+    ICategoryRepository categoryRepository;
     @Autowired
     PictureService pictureService;
     public Page<MainPageProductDTO> getMainPage(ProductCategory.ShopProductCategory category, Pageable pageable) {
@@ -37,6 +40,7 @@ public class ProductService {
         Product newProduct = new Product();
         newProduct.setName(productDTO.getName());
         newProduct.setPrice(productDTO.getPrice());
+        newProduct.setCategory(categoryRepository.findByCategoryEnum(ProductCategory.ShopProductCategory.valueOf(productDTO.getCategory())));
         newProduct.setStock(productDTO.getStock());
         newProduct.setDescription(productDTO.getDescription());
         productRepository.save(newProduct);
