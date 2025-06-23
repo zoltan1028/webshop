@@ -41,16 +41,15 @@
         <div class="col-2">
             <div class="dropdown">
                 <base-button class="button-color-primary dropdown-toggle" mode="button" id="kategoria"
-                    data-bs-toggle="dropdown">{{ orderBy }}</base-button>
+                    data-bs-toggle="dropdown">{{ sortOptions.orderBy }}</base-button>
                 <ul class="dropdown-menu">
                     <li v-for="c in getCategories" :key="c" :value="c"><a class="dropdown-item" href="#"
-                            @click.prevent="setOrderBy(c) == c">{{ c }}</a></li>
+                            @click.prevent="onFilterChange(c) == c">{{ c }}</a></li>
                 </ul>
             </div>
         </div>
         <div class="col-2">
-            <base-button class="button-color-delete" @onClick="invertSortDir">{{ buttonLabelSort }}</base-button>
-
+            <base-button class="button-color-delete" @onClick="onFilterChange">{{ sortOptions.sort }}</base-button>
         </div>
     </div>
 
@@ -66,12 +65,12 @@
         <nav aria-label="Page navigation example">
             <ul class="pagination">
                 <li @click="onButtonPress('previous')" class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel }}</a>
+                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 1}}</a>
                 </li>
-                <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 1
-                }}</a></li>
-                <li @click="onButtonPress('right')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
-                }}</a></li>
+                <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
+                        }}</a></li>
+                <li @click="onButtonPress('right')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 3
+                        }}</a></li>
                 <li @click="onButtonPress('next')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
         </nav>
@@ -99,8 +98,10 @@ export default {
             username: "",
             password: "",
             error: null,
-            buttonLabelSort: "asc",
-            orderBy: "name",
+            sortOptions: {
+                sort: "asc",
+                orderBy: "name"
+            },
             buttonLabel: 0,
             previousButton: "left",
             query: {
@@ -141,14 +142,13 @@ export default {
         }
     },
     methods: {
-        setOrderBy(value) {
-            this.orderBy = value;
-            this.query.sort = `${this.orderBy},${this.buttonLabelSort}`
-            this.loadProducts();
-        },
-        invertSortDir() {
-            this.buttonLabelSort = this.buttonLabelSort === 'asc' ? 'desc' : 'asc'
-            this.query.sort = `${this.orderBy},${this.buttonLabelSort}`
+        onFilterChange(value) {
+            if (value === undefined) {
+                this.sortOptions.sort = this.sortOptions.sort === 'asc' ? 'desc' : 'asc'
+            } else {
+                this.sortOptions.orderBy = value;
+            }
+            this.query.sort = `${this.sortOptions.orderBy},${this.sortOptions.sort}`
             this.loadProducts()
         },
         connectWebSocket() {
@@ -181,7 +181,7 @@ export default {
             this.query.page += this.buttonLookup[button][this.previousButton];
             await this.loadProducts();
             const isPageEmpty = this.$store.getters['products/getProductsIsEmpty']
-            if (isPageEmpty) {this.query.page -= 1;return;}
+            if (isPageEmpty) { this.query.page -= 1; return; }
             this.updateButtonLabels(button);
         },
         updateButtonLabels(button) {
@@ -196,7 +196,6 @@ export default {
             }
         },
         async loadProducts() {
-            console.log(this.query)
             await this.$store.dispatch('products/getProducts', this.query);
         },
         async submitLogin() {

@@ -1,9 +1,11 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link>
-    <base-button v-if="!isHomePage" @click="previousPage" class="button-color-primary">Back</base-button>
-  </nav>
-  <router-view />
+  <div class="mx-5">
+    <nav>
+      <router-link to="/">Home</router-link>
+      <base-button v-if="!isHomePage" @click="previousPage" class="button-color-primary">Back</base-button>
+    </nav>
+    <router-view />
+  </div>
 </template>
 <script>
 export default {

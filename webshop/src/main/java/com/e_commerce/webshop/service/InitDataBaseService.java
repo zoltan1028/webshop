@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class InitDataBaseService {
     @Autowired
     IProductQuantityRepository productQuantityRepository;
     @Transactional
-    public void initH2() {
+    public void initH2() throws IOException {
         pictureService.deleteAllFilesFromPicturesDirectory();
         ProductCategory fruit = new ProductCategory(ProductCategory.ShopProductCategory.FRUIT);
         ProductCategory vegetables = new ProductCategory(ProductCategory.ShopProductCategory.VEGETABLE);
@@ -55,10 +56,8 @@ public class InitDataBaseService {
             productRepository.save(testProduct);
         }
         List<Product> productList = productRepository.findAll();
-        String dummyPic = "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAACGUlEQVR4nO2cW1LCQBQFE8vdsCM3I27GHbGe+BFK8UGgmXtnbqzu8seA5KQ9M0xhnHlZlknu42l0gD2hLICyAMoCKAugLICyAMoCKAvwPDrAmffDYfsJL6dTnyQb2CyAsgDKAigLoCyAsgDKAigLoCxAlRX8Y8xv8+W3y2vu3xOGNmuev774k3+Y+vNILINk3Sno+o9f85Lqq6+s+3u0/TLHzUfTfHWU1exoOF0m+P1rWslv1n8xNaXL+kemplxZaaaW4+OPtpAmK7lT14ycj+ecPUdWl9H329e3IwkZ5vhbjkrNU6FXF92sUqam4DyhsqqZWolL5Uc0gDhZNWu1EpQtSFZlUysRCR2GAGUBImTVH4MrzTltFqBZ1l5qtdKW1mYBlAVQFqBN1r4mrJWGzDYLoCyAsgDKAigLoCyAsgDKAigLoCxAm6w97gnRkNlmAZQFUBagWda+pq22tDYLECFrL+VqzmmzAMoCBMmqPxIjEsY1q7KvoGwOQ0CorJrliksV3axqvkrfrTxV8hWdJGfOquArIUPaBD/WV87ZM98NR/lKO2/y0qG/r8wz5q+zevpKPleXf/tdryH1/qQuv5KOK/i86+lV3r47hnxeVUjLuk+Ig7ZXaRyYg95nh+5Fc3nNN8UVWOiW2bingIub+BENQFkAZQGUBVAWQFkAZQGUBVAWQFkAZQGUBVAWQFkAZQGUBVAWQFmAD/EIZONML+6GAAAAAElFTkSuQmCC";
-        //pictureService.deleteAllFilesFromPicturesDirectory();
+        String dummyPic = pictureService.readPictureFromResources("logo.txt");
         for (Product p: productList) {pictureService.writePicturesToFile(p.getId(), dummyPic);}
-        //test order
         List<Map<String, Object>> rawList = List.of(
                 Map.of("id", 2, "pieces", 2),
                 Map.of("id", 3, "pieces", 3),

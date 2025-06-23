@@ -2,6 +2,7 @@ package com.e_commerce.webshop.service.storage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,5 +52,14 @@ public class PictureService {
             return "";
         }
         return Files.readString(filePath);  // Java 11+ API, beolvassa a teljes fájlt egyszerűen
+    }
+    public String readPictureFromResources(String fileNameInResources) throws IOException {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(fileNameInResources)) {
+            if (in == null) {                          // resource not found
+                System.err.println("Resource not found: " + fileNameInResources);
+                return "";
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 }

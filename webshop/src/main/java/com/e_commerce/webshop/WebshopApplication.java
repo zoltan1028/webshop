@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 @SpringBootApplication
@@ -16,7 +17,14 @@ public class WebshopApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WebshopApplication.class, args);
-		initDataBaseService.initH2();
+		try {
+			//placeholder db initialization script
+			initDataBaseService.initH2();
+		} catch (IOException e) {
+			System.err.println("Error reading resources.");
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 	@Autowired
 	public void setMyService(InitDataBaseService service) {
