@@ -8,7 +8,7 @@ export default {
     getProductForm(state: any): Product {
         return state.productForm;
     },
-    getProducts(state: any): PageableProductsDTO  {
+    getPageableProducts(state: any): PageableProductsDTO  {
         return state.products;
     },
 };

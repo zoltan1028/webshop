@@ -65,7 +65,8 @@
         <nav aria-label="Page navigation example">
             <ul class="pagination">
                 <li @click="onButtonPress('previous')" class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 1}}</a>
+                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel +
+                    1 }}</a>
                 </li>
                 <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
                         }}</a></li>
@@ -121,24 +122,25 @@ export default {
     },
     computed: {
         getProducts() {
-            const product = this.$store.getters['products/getProducts'];
-            return product ? product.content : null;
+            return this.$store.getters['products/getPageableProducts']?.content;
         },
         getCategories() {
-            const products = this.$store.getters['products/getProducts'];
-            return products ? Object.keys(products.content[0]) : [];
+            const products = this.$store.getters['products/getPageableProducts'];
+            if (!products) return undefined;
+            const firstProduct = products.content[0];
+            const excludedKeys = ['id', 'picture', 'description'];
+            return Object.keys(firstProduct).filter(
+                key => !excludedKeys.includes(key)
+            );
         },
         getProductsCount() {
-            const products = this.$store.getters['products/getProducts'];
-            return products ? products.totalElements : 0;
+            return this.$store.getters['products/getPageableProducts']?.totalElements;
         },
         getNumberOfPages() {
-            const products = this.$store.getters['products/getProducts'];
-            return products ? products.totalPages : 0;
+            return this.$store.getters['products/getPageableProducts']?.totalPages;
         },
         getAuthentication() {
-            const auth = this.$store.getters['authentication/getAuth'];
-            return auth;
+            return this.$store.getters['authentication/getAuth'];
         }
     },
     methods: {

@@ -62,8 +62,7 @@ export default {
     },
     computed: {
         isUserLoggedIn() {
-            const auth = this.$store.getters['authentication/getAuth'];
-            return auth ? auth.token : auth;
+            return this.$store.getters['authentication/getAuth']?.auth;
         },
         getCartContent() {
             return this.$store.getters['orders/getCartContent']
