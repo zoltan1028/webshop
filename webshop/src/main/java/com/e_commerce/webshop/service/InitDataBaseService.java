@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class InitDataBaseService {
@@ -36,9 +37,9 @@ public class InitDataBaseService {
     public void initH2() throws IOException {
         pictureService.deleteAllFilesFromPicturesDirectory();
         ProductCategory fruit = new ProductCategory(ProductCategory.ShopProductCategory.FRUIT);
-        ProductCategory vegetables = new ProductCategory(ProductCategory.ShopProductCategory.VEGETABLE);
+        ProductCategory vegetable = new ProductCategory(ProductCategory.ShopProductCategory.VEGETABLE);
         categoryRepository.save(fruit);
-        categoryRepository.save(vegetables);
+        categoryRepository.save(vegetable);
         String hashedPassword = authenticationService.hashPassword("admin");
         ShopUser user = new ShopUser("admin", hashedPassword, ShopUser.UserRight.ADMIN);
         userRepository.save(user);
@@ -50,9 +51,15 @@ public class InitDataBaseService {
         productRepository.deleteAll();
 
         for (int i = 0; i < 20; i++) {
-            Product testProduct = new Product(names[i], BigDecimal.valueOf(i), i, fruit);
+            Product testProduct;
+            if (ThreadLocalRandom.current().nextBoolean()) {
+                testProduct = new Product(names[i], BigDecimal.valueOf(i), i, fruit);
+                fruit.addProductToCategory(testProduct);
+            } else {
+                testProduct = new Product(names[i], BigDecimal.valueOf(i), i, vegetable);
+                vegetable.addProductToCategory(testProduct);
+            }
             testProduct.setDescription(String.valueOf(i));
-            fruit.addProductToCategory(testProduct);
             productRepository.save(testProduct);
         }
         List<Product> productList = productRepository.findAll();

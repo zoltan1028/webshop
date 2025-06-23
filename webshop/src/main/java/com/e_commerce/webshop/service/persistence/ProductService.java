@@ -23,8 +23,13 @@ public class ProductService {
     ICategoryRepository categoryRepository;
     @Autowired
     PictureService pictureService;
-    public Page<MainPageProductDTO> getMainPage(ProductCategory.ShopProductCategory category, Pageable pageable) {
-        Page<Product> pageResult = productRepository.findByCategory_CategoryEnum(category, pageable);
+    public Page<MainPageProductDTO> getMainPage(String category, Pageable pageable) {
+        Page<Product> pageResult;
+        if (category.equals("ALL")) {
+            pageResult = productRepository.findAll(pageable);
+        } else {
+            pageResult = productRepository.findByCategory_CategoryEnum(ProductCategory.ShopProductCategory.valueOf(category), pageable);
+        }
         Page<MainPageProductDTO> dtoPageResult = pageResult.map(MainPageProductDTO::new);
         dtoPageResult.getContent().forEach(dtoProduct -> {
             try {

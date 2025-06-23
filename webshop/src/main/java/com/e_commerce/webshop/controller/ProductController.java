@@ -27,7 +27,7 @@ public class ProductController {
     AuthenticationService authenticationService;
     @GetMapping("getProducts")
     public ResponseEntity<Page<MainPageProductDTO>> getProductsByPage(
-            @RequestParam(name = "category", defaultValue = "FRUIT") ProductCategory.ShopProductCategory category,
+            @RequestParam(name = "category", defaultValue = "ALL") String category,
             @ParameterObject
             @PageableDefault(size = 5, sort = "price", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(productService.getMainPage(category, pageable));

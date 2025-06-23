@@ -107,7 +107,7 @@ export default {
             query: {
                 page: 0,
                 size: 5,
-                category: "FRUIT",
+                category: "ALL",
                 sort: "name,asc"
             },
             buttonLookup: {
