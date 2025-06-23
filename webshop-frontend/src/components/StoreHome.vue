@@ -5,7 +5,7 @@
     <div class="row align-items-center justify-content-center my-3">
         <div class="col-2">
             <base-button v-if="getAuthentication.userRight === 'ADMIN'" class="button-color-delete" mode="link"
-                to="/manageproduct">Upload Stuff</base-button>
+                to="/manageproduct">Upload Product</base-button>
         </div>
         <div class="col-2">
             <base-button v-if="getAuthentication.token !== null" class="button-color-delete" mode="link"
@@ -65,13 +65,12 @@
         <nav aria-label="Page navigation example">
             <ul class="pagination">
                 <li @click="onButtonPress('previous')" class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel +
-                    1 }}</a>
+                <li @click="onButtonPress('left')" class="page-item"><a class="page-link" href="#">{{ buttonLabel }}</a>
                 </li>
-                <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
-                        }}</a></li>
-                <li @click="onButtonPress('right')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 3
-                        }}</a></li>
+                <li @click="onButtonPress('middle')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 1
+                }}</a></li>
+                <li @click="onButtonPress('right')" class="page-item"><a class="page-link" href="#">{{ buttonLabel + 2
+                }}</a></li>
                 <li @click="onButtonPress('next')" class="page-item"><a class="page-link" href="#">Next</a></li>
             </ul>
         </nav>
@@ -103,7 +102,7 @@ export default {
                 sort: "asc",
                 orderBy: "name"
             },
-            buttonLabel: 0,
+            buttonLabel: 1,
             previousButton: "left",
             query: {
                 page: 0,
@@ -178,13 +177,22 @@ export default {
         },
         async onButtonPress(button) {
             if (button === this.previousButton) return;
-            const step = this.buttonLookup?.[button]?.[this.previousButton] ?? 0;
-            if (step < 0 && this.query.page === 0) return;
-            this.query.page += this.buttonLookup[button][this.previousButton];
+
+            const offset = this.buttonLookup[button][this.previousButton];
+            const newPage = this.query.page + offset;
+
+            if (newPage < 0) return;
+
+            this.query.page = newPage;
             await this.loadProducts();
-            const isPageEmpty = this.$store.getters['products/getProductsIsEmpty']
-            if (isPageEmpty) { this.query.page -= 1; return; }
+
+            if (this.$store.getters['products/getProductsIsEmpty']) {
+                this.query.page -= 1;
+                return;
+            }
+
             this.updateButtonLabels(button);
+
         },
         updateButtonLabels(button) {
             if (button === "next") {
