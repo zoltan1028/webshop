@@ -62,7 +62,7 @@ export default {
     },
     computed: {
         isUserLoggedIn() {
-            return this.$store.getters['authentication/getAuth']?.auth;
+            return this.$store.getters['authentication/getAuth']?.token;
         },
         getCartContent() {
             return this.$store.getters['orders/getCartContent']
@@ -73,7 +73,6 @@ export default {
         getToppings() {
             const userOrders = this.$store.getters['orders/getOrdersOfUser'].shopOrderList;
             //undefined until promise is fulfilled even if store variable is initialized as object 
-            console.log(userOrders)
             return userOrders ? userOrders.map(order => order.id) : undefined;
         }
     },
@@ -139,16 +138,16 @@ export default {
             console.log(this.selectedTopping)
             this.$store.dispatch('orders/emptyCart')
         },
-        qtyChanged(data) {
+        qtyChanged(clickEventData) {
             let cartContent = this.$store.getters['orders/getCartContent']
             let total = 0;
             cartContent.forEach(product => {
-                if ((product.id === data[0]) && (data[1] === '+')) {
+                if ((product.id === clickEventData.productId) && (clickEventData.arthimeticOperator === '+')) {
                     //changing value of state variable
                     product.pieces++;
-                } else if ((product.id === data[0]) && (product.pieces > 1)) {
+                } else if ((product.id === clickEventData.productId) && (product.pieces > 1)) {
                     product.pieces--;
-                } else if ((product.id === data[0]) && (product.pieces <= 1)) {
+                } else if ((product.id === clickEventData.productId) && (product.pieces <= 1)) {
                     let filtered = cartContent.filter(item => item.id !== product.id)
                     //saving filtered cart to state variable
                     this.$store.dispatch('orders/saveCart', filtered);

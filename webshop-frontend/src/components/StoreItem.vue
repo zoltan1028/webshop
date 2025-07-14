@@ -2,11 +2,11 @@
     <div>
         <base-card>
             <img :src="`data:image/png;base64,${picture}`" />
-            <p class="text-primary">név : {{ name }}</p>
-            <p class="text-primary">ár : {{ price }}</p>
-            <p class="text-primary">készleten : {{ stock }}</p>
-            <p class="text-primary">kategória : {{ category.toLowerCase() }}</p>
-            <p class="text-primary">leírás : {{ description }}</p>
+            <p class="text-primary">name : {{ name }}</p>
+            <p class="text-primary">price : {{ price }}</p>
+            <p class="text-primary">stock : {{ stock }}</p>
+            <p class="text-primary">category : {{ category.toLowerCase() }}</p>
+            <p class="text-primary">description : {{ description }}</p>
             <base-button class="button-color-primary" mode="button" @onClick="addToCart">Add To Cart</base-button>
         </base-card>
     </div>
