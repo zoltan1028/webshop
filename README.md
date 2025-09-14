@@ -1,1 +1,3 @@
-![image](https://github.com/user-attachments/assets/3f3230b4-13c2-4c07-be27-c8fa0e8448a3)
+<h2>Demo application to test Spring Boot with Vue</h2>
+<img width="1623" height="912" alt="testshop" src="https://github.com/user-attachments/assets/a9bed697-7110-4645-88e8-ddfd7dd6977b" />
+
