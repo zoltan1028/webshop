@@ -44,10 +44,10 @@ public class InitDataBaseService {
         ShopUser user = new ShopUser("admin", hashedPassword, ShopUser.UserRight.ADMIN);
         userRepository.save(user);
         String[] names = {
-                "alma", "korte", "banan", "cseresznye", "avokado",
-                "mango", "dio", "mandula", "grapefruit", "szilva",
-                "meggy", "paradicsom", "uborka", "retek", "hagyma",
-                "fokhagyma", "cekla", "kivi", "narancs", "padlizsan"};
+                "apple", "pear", "banana", "cherry", "avocado",
+                "mango", "walnut", "almond", "grapefruit", "plum",
+                "sour cherry", "tomato", "cucumber", "radish", "onion",
+                "garlic", "beetroot", "kiwi", "orange", "eggplant"};
         productRepository.deleteAll();
 
         for (int i = 0; i < 20; i++) {
